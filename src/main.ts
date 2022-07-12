@@ -1,15 +1,17 @@
-const path = require('path');
-const fs = require('fs/promises');
+import path from 'path';
+import fs from 'fs/promises';
 
-const { ArgumentParser } = require('argparse');
+import { ArgumentParser } from 'argparse';
+import clone from 'git-clone/promise';
+import { exit } from 'process';
+import glob from 'glob-promise';
+
+// TODO: replace this library to something with types
 const fx = require('mkdir-recursive');
-const clone = require('git-clone/promise');
-const { exit } = require('process');
-const glob = require('glob-promise');
 
-const mkdir = (path) =>
-	new Promise((res, rej) => {
-		fx.mkdir(path, (err) => {
+const mkdir = (path: string) =>
+	new Promise<void>((res, rej) => {
+		fx.mkdir(path, (err: any) => {
 			if (err) {
 				rej(err);
 			} else {
@@ -18,7 +20,7 @@ const mkdir = (path) =>
 		});
 	});
 
-const isResourceExist = (filename) =>
+const isResourceExist = (filename: string) =>
 	fs.access(filename).then(
 		() => true,
 		() => false,
@@ -34,10 +36,15 @@ const archetypes = {
 	},
 };
 
+type Archetype = {
+	type: 'git';
+	path: string;
+};
+
 const rootDir = path.resolve(path.dirname(__filename));
 const cacheDir = path.join(rootDir, '.cache');
 
-const getArchetypeFromGit = async (archetype) => {
+const getArchetypeFromGit = async (archetype: Archetype) => {
 	const repo = archetype.path;
 
 	const gitUrl = new URL(repo);
@@ -59,7 +66,7 @@ const getArchetypeFromGit = async (archetype) => {
 // TODO: replace `exit` with message to exceptions, catch it on top level and show messages
 // it's necessary to abstract CLI logic of actions
 (async () => {
-	const { version } = require('./package.json');
+	const { version } = require('../package.json');
 
 	const parser = new ArgumentParser({
 		description: 'Generate project files structure from archetype',
@@ -72,7 +79,7 @@ const getArchetypeFromGit = async (archetype) => {
 	const args = parser.parse_args();
 	console.dir(args);
 
-	const archetype = archetypes[args.archetype];
+	const archetype = (archetypes as any)[args.archetype] as Archetype | undefined;
 	if (!archetype) {
 		console.log(`Archetype is not found. Check your config`);
 		exit(1);
@@ -80,7 +87,7 @@ const getArchetypeFromGit = async (archetype) => {
 
 	await mkdir(cacheDir);
 
-	let archetypeDir;
+	let archetypeDir: string;
 	switch (archetype.type) {
 	case 'git':
 		archetypeDir = await getArchetypeFromGit(archetype);
