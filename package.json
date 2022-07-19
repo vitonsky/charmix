@@ -7,6 +7,9 @@
 	},
 	"scripts": {
 		"test": "jest",
+		"build:package": "gulp",
+		"build:dev": "gulp watch",
+		"build:clean": "gulp clean",
 		"prettify": "prettier --write \"{*,**/*}.{ts,tsx,js,jsx}\" && eslint --fix \"{*,**/*}.{ts,tsx,js,jsx}\"",
 		"lint:text": "npx textlint \"{*,**/*}.md\"",
 		"packages:upgrade": "npx npm-check-updates -u",
@@ -26,6 +29,7 @@
 		"eslint-plugin-react": "^7.30.0",
 		"eslint-plugin-react-hooks": "^4.5.0",
 		"gulp": "^4.0.2",
+		"gulp-clean": "^0.4.0",
 		"gulp-typescript": "^6.0.0-alpha.1",
 		"husky": "^8.0.1",
 		"jest": "^28.1.0",

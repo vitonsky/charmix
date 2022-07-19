@@ -1,28 +1,19 @@
 const gulp = require('gulp');
 const ts = require('gulp-typescript');
 const mergeStream = require('merge-stream');
+const clean = require('gulp-clean');
 
 const buildDir = 'dist';
 
-// Helpers
-function tsCompilerFactory(outPath, settings) {
-	return function compileTS() {
-		const tsProject = ts.createProject('tsconfig.json', settings);
-
-		return gulp.src(['src/**/*.ts']).pipe(tsProject()).pipe(gulp.dest(outPath));
-	};
-}
-
-// Main
+const tsProject = ts.createProject('tsconfig.json', { module: 'commonjs' });
 function buildCjs() {
-	const out = buildDir;
-
-	return tsCompilerFactory(out, { module: 'commonjs' });
+	return gulp.src(['src/**/*.ts']).pipe(tsProject()).pipe(gulp.dest(buildDir));
 }
 
 function copyMetaFiles() {
 	return mergeStream([
 		mergeStream(
+			// TODO: clean package.json
 			// Clean package.json
 			gulp.src(['./package.json']),
 			// Copy other
@@ -32,8 +23,14 @@ function copyMetaFiles() {
 	]);
 }
 
-// TODO: implement dev mode with watch and incremental building
-// Compilations
-const fullBuild = gulp.series([copyMetaFiles, buildCjs()]);
+function cleanDist() {
+	return gulp.src(buildDir, { allowEmpty: true, read: false }).pipe(clean());
+}
 
-module.exports.default = fullBuild;
+function watchFiles() {
+	return gulp.watch(['src/**/*.ts'], gulp.series([copyMetaFiles, buildCjs]));
+}
+
+module.exports.default = gulp.series([cleanDist, copyMetaFiles, buildCjs]);
+module.exports.clean = cleanDist;
+module.exports.watch = gulp.series([module.exports.default, watchFiles]);
