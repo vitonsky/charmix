@@ -1,15 +1,11 @@
 import path from 'path';
 import crypto from 'crypto';
 
+import { mkdirp } from 'fs-extra';
 import clone from 'git-clone/promise';
-import { isResourceExist, mkdir } from '../utils';
 
-/**
- * Archetype fetcher to download archetype and return path to directory
- */
-export interface ArchetypeFetcher {
-	fetch(reference: string): Promise<string>;
-}
+import { ArchetypeFetcher } from '.';
+import { isResourceExist } from '../../utils';
 
 export class GitFetcher implements ArchetypeFetcher {
 	protected outDirectory: string;
@@ -35,7 +31,7 @@ export class GitFetcher implements ArchetypeFetcher {
 		const isArchetypeDirExist = await isResourceExist(archetypeDir);
 		if (!isArchetypeDirExist) {
 			// Save repository to cache
-			await mkdir(archetypeDir);
+			await mkdirp(archetypeDir);
 			await clone(src, archetypeDir, { shallow: true });
 		}
 

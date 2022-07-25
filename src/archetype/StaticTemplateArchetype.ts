@@ -1,67 +1,10 @@
 import path from 'path';
-import fs from 'fs/promises';
+
 import fsextra from 'fs-extra';
-
 import glob from 'glob-promise';
-import { isResourceExist } from './utils';
 
-export type ArchetypeEntry = {
-	name: string;
-	type: 'git';
-	src: string;
-};
-
-export type ArchetypeStaticTemplate = {
-	type: 'staticTemplate';
-	files: string | string[];
-};
-
-export type ArchetypeConfigHook = {
-	type: 'configHook';
-	hooks: string;
-};
-
-export type ArchetypeCli = {
-	type: 'cli';
-	command: string;
-};
-
-export type ArchetypeManifest = {
-	name?: string;
-	version?: string;
-} & (ArchetypeStaticTemplate | ArchetypeConfigHook | ArchetypeCli);
-
-export enum ARCHETYPE_TYPE {
-	STATIC_TEMPLATE = 'staticTemplate',
-}
-
-const getArchetypeManifest = async (dir: string) => {
-	try {
-		const metaFileName = 'archetype.json';
-
-		const filename = path.join(dir, metaFileName);
-
-		const fileBuffer = await fs.readFile(filename);
-		const rawData = fileBuffer.toString('utf-8');
-
-		// TODO: add validation
-		return JSON.parse(rawData) as ArchetypeManifest;
-	} catch {
-		return null;
-	}
-};
-
-export const getArchetypeType = async (
-	archetypeDir: string,
-): Promise<ARCHETYPE_TYPE | null> => {
-	const filesDir = path.join(archetypeDir, 'files');
-	const isFilesDirExist = await isResourceExist(filesDir);
-	if (isFilesDirExist) {
-		return ARCHETYPE_TYPE.STATIC_TEMPLATE;
-	}
-
-	return null;
-};
+import { isResourceExist } from '../utils';
+import { getArchetypeManifest } from './utils';
 
 export class StaticTemplateArchetype {
 	public apply = async (archetypeDir: string, destination: string) => {

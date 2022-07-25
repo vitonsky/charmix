@@ -1,16 +1,14 @@
 import path from 'path';
-
-import { ArgumentParser } from 'argparse';
 import { exit } from 'process';
 
-import { mkdir } from './utils';
-import { GitFetcher } from './repository/fetcher';
-import {
-	ArchetypeEntry,
-	ARCHETYPE_TYPE,
-	getArchetypeType,
-	StaticTemplateArchetype,
-} from './archetype';
+import { ArgumentParser } from 'argparse';
+import { mkdirp } from 'fs-extra';
+
+import { GitFetcher } from './repository/ArchetypeFetcher/GitFetcher';
+
+import { StaticTemplateArchetype } from './archetype/StaticTemplateArchetype';
+import { ArchetypeEntry, ARCHETYPE_TYPE } from './archetype';
+import { getArchetypeType } from './archetype/utils';
 
 const rootDir = path.resolve(path.dirname(__filename));
 const cacheDir = path.join(rootDir, '.cache');
@@ -53,7 +51,7 @@ const gitFetcher = new GitFetcher(cacheDir);
 		exit(1);
 	}
 
-	await mkdir(cacheDir);
+	await mkdirp(cacheDir);
 
 	let archetypeDir: string;
 	switch (archetype.type) {
