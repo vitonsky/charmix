@@ -29,5 +29,9 @@ debug.log
 out
 dist
 
+# configs
+archetypes.json
+
 # tmp files
 .cache
+testDir
