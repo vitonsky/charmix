@@ -1,9 +1,9 @@
 import path from 'path';
 import fs from 'fs/promises';
+import fsextra from 'fs-extra';
 
-import { exit } from 'process';
 import glob from 'glob-promise';
-import { isResourceExist, mkdir } from './utils';
+import { isResourceExist } from './utils';
 
 export type ArchetypeEntry = {
 	name: string;
@@ -11,9 +11,45 @@ export type ArchetypeEntry = {
 	src: string;
 };
 
+export type ArchetypeStaticTemplate = {
+	type: 'staticTemplate';
+	files: string | string[];
+};
+
+export type ArchetypeConfigHook = {
+	type: 'configHook';
+	hooks: string;
+};
+
+export type ArchetypeCli = {
+	type: 'cli';
+	command: string;
+};
+
+export type ArchetypeManifest = {
+	name?: string;
+	version?: string;
+} & (ArchetypeStaticTemplate | ArchetypeConfigHook | ArchetypeCli);
+
 export enum ARCHETYPE_TYPE {
 	STATIC_TEMPLATE = 'staticTemplate',
 }
+
+const getArchetypeManifest = async (dir: string) => {
+	try {
+		const metaFileName = 'archetype.json';
+
+		const filename = path.join(dir, metaFileName);
+
+		const fileBuffer = await fs.readFile(filename);
+		const rawData = fileBuffer.toString('utf-8');
+
+		// TODO: add validation
+		return JSON.parse(rawData) as ArchetypeManifest;
+	} catch {
+		return null;
+	}
+};
 
 export const getArchetypeType = async (
 	archetypeDir: string,
@@ -27,46 +63,55 @@ export const getArchetypeType = async (
 	return null;
 };
 
-// TODO: start use manifest
 export class StaticTemplateArchetype {
 	public apply = async (archetypeDir: string, destination: string) => {
-		const filesDir = path.join(archetypeDir, 'files');
-		const isFilesDirExist = await isResourceExist(filesDir);
-		if (!isFilesDirExist) {
-			console.log('Archetype repository is not contain directory "files" to copy');
-			exit(1);
+		const manifest = await getArchetypeManifest(archetypeDir);
+
+		if (!manifest) {
+			throw new Error('Manifest not found');
+		}
+		if (manifest.type !== 'staticTemplate') {
+			throw new Error('Invalid type of archetype');
 		}
 
-		const filesToCopy = await glob(path.join(filesDir, '{*,**/*}'), { dot: true });
+		let filesToCopy: string[] = [];
+
+		// Find files from manifest
+		const globPaths = Array.isArray(manifest.files)
+			? manifest.files
+			: [manifest.files];
+		for (const resource of globPaths) {
+			const foundResources = await glob(resource, {
+				dot: true,
+				cwd: archetypeDir,
+				root: archetypeDir,
+				absolute: true,
+			});
+
+			for (const resourcePath of foundResources) {
+				if (resourcePath.slice(0, archetypeDir.length) !== archetypeDir) {
+					throw new Error("Archetype can't specify files out of its directory");
+				}
+
+				const isExists = await isResourceExist(resourcePath);
+				if (!isExists) {
+					throw new Error('Resource is not available');
+				}
+
+				filesToCopy.push(resourcePath);
+			}
+		}
+
+		// Remove duplicates
+		filesToCopy = filesToCopy.filter((path, idx, arr) => arr.indexOf(path) === idx);
 
 		console.log({ filesToCopy, destination });
 
+		// Copy files and directories
 		await Promise.all(
 			filesToCopy.map(async (filename) => {
-				const relativePath = filename.slice(filesDir.length + 1);
-				const destPath = path.join(destination, relativePath);
-
-				// Prevent rewrite files
-				const isFileExist = await isResourceExist(destPath);
-				if (isFileExist) return;
-
-				// Skip directories
-				const stat = await fs.lstat(filename);
-				if (stat.isDirectory()) return;
-
-				// Ensure exists directory
-				const directory = path.dirname(destPath);
-				const isDirnameExist = await isResourceExist(directory);
-				if (!isDirnameExist) {
-					await mkdir(directory).catch((err) => {
-						// Skip error about exists dir
-						if (err.message.match(/^EEXIST:/)) return;
-						throw err;
-					});
-				}
-
-				// Copy
-				await fs.copyFile(filename, destPath);
+				const destPath = path.join(destination, path.basename(filename));
+				await fsextra.copy(filename, destPath);
 			}),
 		);
 	};
