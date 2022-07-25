@@ -10,8 +10,8 @@ export type ArchetypeStaticTemplate = {
 };
 
 export type ArchetypeConfigHook = {
-	type: 'configHook';
-	hooks: string;
+	type: 'hook';
+	hook: string;
 };
 
 export type ArchetypeCli = {
@@ -26,4 +26,5 @@ export type ArchetypeManifest = {
 
 export enum ARCHETYPE_TYPE {
 	STATIC_TEMPLATE = 'staticTemplate',
+	HOOK = 'hook',
 }

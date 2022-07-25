@@ -7,18 +7,16 @@ import { mkdirp } from 'fs-extra';
 import { GitFetcher } from '../repository/ArchetypeFetcher/GitFetcher';
 
 import { StaticTemplateArchetype } from '../archetype/StaticTemplateArchetype';
+import { HookArchetype } from '../archetype/HookArchetype';
 import { ArchetypeEntry, ARCHETYPE_TYPE } from '../archetype';
-import { getArchetypeType } from '../archetype/utils';
-
-const rootDir = path.resolve(path.dirname(__filename));
-const cacheDir = path.join(rootDir, '.cache');
-
-const gitFetcher = new GitFetcher(cacheDir);
+import { getArchetypeManifest } from '../archetype/utils';
 
 // TODO: replace `exit` with message to exceptions, catch it on top level and show messages
 // it's necessary to abstract CLI logic of actions
-export const app = async () => {
+export const app = async ({ cacheDir }: { cacheDir: string }) => {
 	const { version } = require('../package.json');
+
+	const gitFetcher = new GitFetcher(cacheDir);
 
 	// TODO: implement repository to add/delete archetypes
 	// Get archetypes
@@ -55,6 +53,7 @@ export const app = async () => {
 
 	let archetypeDir: string;
 	switch (archetype.type) {
+	// TODO: implement new types, at least `local`
 	case 'git':
 		archetypeDir = await gitFetcher.fetch(archetype.src);
 		break;
@@ -68,10 +67,21 @@ export const app = async () => {
 	// TODO: run prepare script if allowed
 
 	const destination = path.resolve(process.cwd());
-	const archetypeType = await getArchetypeType(archetypeDir);
+
+	const archetypeManifest = await getArchetypeManifest(archetypeDir);
+
+	if (archetypeManifest === null) {
+		console.log('Archetype manifest is not found');
+		exit(1);
+	}
+
+	const { type: archetypeType } = archetypeManifest;
 
 	if (archetypeType === ARCHETYPE_TYPE.STATIC_TEMPLATE) {
 		const staticArchetype = new StaticTemplateArchetype();
+		staticArchetype.apply(archetypeDir, destination);
+	} else if (archetypeType === ARCHETYPE_TYPE.HOOK) {
+		const staticArchetype = new HookArchetype();
 		staticArchetype.apply(archetypeDir, destination);
 	} else {
 		console.log('Unknown type of archetype');

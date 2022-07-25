@@ -19,15 +19,3 @@ export const getArchetypeManifest = async (dir: string) => {
 		return null;
 	}
 };
-
-export const getArchetypeType = async (
-	archetypeDir: string,
-): Promise<ARCHETYPE_TYPE | null> => {
-	const filesDir = path.join(archetypeDir, 'files');
-	const isFilesDirExist = await isResourceExist(filesDir);
-	if (isFilesDirExist) {
-		return ARCHETYPE_TYPE.STATIC_TEMPLATE;
-	}
-
-	return null;
-};
