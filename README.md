@@ -8,15 +8,13 @@ This project is under construction!
 
 Roadmap:
 
-- [ ] Add script to build package
+- [x] Add script to build package
 - [ ] Enable debug prints only in verbose mode
-- [ ] Implement configurable archetypes
-  - [ ] Copy only files from manifest instead of all files from special directory
+- [x] Implement user defined archetypes
+  - [x] Copy only files from manifest instead of all files from special directory
   - [ ] Implement archetype template with script to configure files (i.e set project name)
 - [ ] Implement interactive mode
-- [ ] Add few types of archetypes
 - [ ] Cleanup project files
-- [ ] Improve project files structure
 
 # How it works?
 
