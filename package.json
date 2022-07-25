@@ -7,7 +7,7 @@
 	},
 	"scripts": {
 		"test": "jest",
-		"build:package": "gulp",
+		"build:package": "NODE_ENV=production gulp",
 		"build:dev": "gulp watch",
 		"build:clean": "gulp clean",
 		"prettify": "prettier --write \"{*,**/*}.{ts,tsx,js,jsx}\" && eslint --fix \"{*,**/*}.{ts,tsx,js,jsx}\"",

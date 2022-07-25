@@ -5,7 +5,15 @@ const clean = require('gulp-clean');
 
 const buildDir = 'dist';
 
-const tsProject = ts.createProject('tsconfig.json', { module: 'commonjs' });
+const isProduction = process.env.NODE_ENV === 'production';
+
+const tsProject = ts.createProject('tsconfig.json', {
+	module: 'commonjs',
+
+	// Don't check types for dev mode
+	isolatedModules: !isProduction,
+});
+
 function buildCjs() {
 	return gulp.src(['src/**/*.ts']).pipe(tsProject()).pipe(gulp.dest(buildDir));
 }
