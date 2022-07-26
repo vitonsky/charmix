@@ -4,7 +4,21 @@ import fs from 'fs/promises';
 /**
  * Error to throw and show message to user
  */
-export class CriticalError extends Error {}
+export class CriticalError extends Error {
+	public cause: Error | null = null;
+	constructor(
+		msg: string,
+		options?: {
+			/**
+			 * This error should be thrown after catch `CriticalError`
+			 */
+			cause?: Error;
+		},
+	) {
+		super(msg);
+		this.cause = options?.cause ?? null;
+	}
+}
 
 export const isResourceExist = (filename: string) =>
 	fs.access(filename).then(
