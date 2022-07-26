@@ -16,6 +16,7 @@ export const app = async (appOptions: AppOptions) => {
 	});
 
 	const subParsers = parser.add_subparsers();
+	parser.add_argument('-v', '--version', { action: 'version', version });
 
 	// TODO: add builder to construct a parsers with no boilerplate
 	// TODO: move params to the classes
@@ -23,7 +24,6 @@ export const app = async (appOptions: AppOptions) => {
 	const useParser = subParsers.add_parser('use');
 	useParser.add_argument('archetype', { help: 'archetype name' });
 	useParser.add_argument('params', { nargs: '*', help: 'archetype parameters' });
-	useParser.add_argument('-v', '--version', { action: 'version', version });
 	useParser.set_defaults({ handler: use.use });
 	// useParser.add_argument('-s', '--scripts', { help: 'define allow/disallow scripts' });
 
