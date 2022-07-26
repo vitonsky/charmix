@@ -25,8 +25,23 @@ export type HookModule = {
 
 export class HookArchetype {
 	private getModule = (src: string): HookModule => {
-		// TODO: add validation
 		const module = require(src);
+
+		if (typeof module !== 'object') {
+			throw Error('Invalid type of module');
+		}
+
+		// Check type of required hooks
+		const requiredHooks = ['getFiles'];
+		requiredHooks.forEach((hookName) => {
+			if (!(hookName in module)) {
+				throw Error(`Hook ${hookName} is not found in module`);
+			}
+			if (typeof module[hookName] !== 'function') {
+				throw Error(`Invalid type of hook ${hookName}`);
+			}
+		});
+
 		return module;
 	};
 
