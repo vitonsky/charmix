@@ -19,13 +19,17 @@ function buildCjs() {
 }
 
 function copyMetaFiles() {
+	const devFiles = ['./archetypes.json'];
+
 	return mergeStream([
 		mergeStream(
 			// TODO: clean package.json
 			// Clean package.json
 			gulp.src(['./package.json']),
 			// Copy other
-			gulp.src(['./README.md']),
+			gulp.src(['./README.md', ...(isProduction ? [] : devFiles)], {
+				allowEmpty: true,
+			}),
 		).pipe(gulp.dest(buildDir)),
 		gulp.src(['./bin/**']).pipe(gulp.dest(buildDir + '/bin')),
 	]);

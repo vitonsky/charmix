@@ -1,8 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 
-import { ArchetypeManifest, ARCHETYPE_TYPE } from '.';
-import { isResourceExist } from '../utils';
+import { ArchetypeManifest } from '.';
 
 export const getArchetypeManifest = async (dir: string) => {
 	try {
