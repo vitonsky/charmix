@@ -83,10 +83,15 @@ export class HookArchetype {
 
 		const { getFiles } = this.getModule(hookModulePath);
 
-		// TODO: provide parameters
-		const files = await getFiles({}, { addFile }).catch((err) => {
-			throw new CriticalError('Exception while hook execution', { cause: err });
-		});
+		let files;
+		try {
+			// TODO: provide parameters
+			files = await getFiles({}, { addFile });
+		} catch (err) {
+			throw new CriticalError('Exception while hook execution', {
+				cause: err as Error,
+			});
+		}
 
 		if (Array.isArray(files)) {
 			await Promise.all(files.map((file) => addFile(file)));

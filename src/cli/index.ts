@@ -1,102 +1,70 @@
-import path from 'path';
-import { exit } from 'process';
-
 import { ArgumentParser } from 'argparse';
-import { mkdirp } from 'fs-extra';
 
-import { GitFetcher } from '../repository/ArchetypeFetcher/GitFetcher';
-
-import { StaticTemplateArchetype } from '../archetype/StaticTemplateArchetype';
-import { HookArchetype } from '../archetype/HookArchetype';
-import { ArchetypeEntry, ARCHETYPE_TYPE } from '../archetype';
-import { getArchetypeManifest } from '../archetype/utils';
 import { CriticalError } from '../utils';
+import { CommandUse } from './commands/CommandUse';
 
-// TODO: replace `exit` with message to exceptions, catch it on top level and show messages
-// it's necessary to abstract CLI logic of actions
-export const app = async ({ cacheDir }: { cacheDir: string }) => {
+export type AppOptions = {
+	rootDir: string;
+	cacheDir: string;
+};
+
+export const app = async (appOptions: AppOptions) => {
 	const { version } = require('../package.json');
-
-	const gitFetcher = new GitFetcher(cacheDir);
-
-	// TODO: implement repository to add/delete archetypes
-	// Get archetypes
-	let archetypes: ArchetypeEntry[] = [];
-	try {
-		const content = require('../archetypes.json');
-		if (Array.isArray(content)) {
-			archetypes = content;
-		} else {
-			throw new TypeError('Invalid format of archetypes.json');
-		}
-	} catch (err) {
-		// TODO: add warning
-	}
 
 	const parser = new ArgumentParser({
 		description: 'Generate project files structure from archetype',
 	});
 
-	parser.add_argument('archetype', { help: 'archetype name' });
-	parser.add_argument('-v', '--version', { action: 'version', version });
-	// parser.add_argument('-s', '--scripts', { help: 'define allow/disallow scripts' });
+	const subParsers = parser.add_subparsers();
+
+	// TODO: add builder to construct a parsers with no boilerplate
+	// TODO: move params to the classes
+	const use = new CommandUse(appOptions);
+	const useParser = subParsers.add_parser('use');
+	useParser.add_argument('archetype', { help: 'archetype name' });
+	useParser.add_argument('params', { nargs: '*', help: 'archetype parameters' });
+	useParser.add_argument('-v', '--version', { action: 'version', version });
+	useParser.set_defaults({ handler: use.use });
+	// useParser.add_argument('-s', '--scripts', { help: 'define allow/disallow scripts' });
+
+	// TODO: implement archetype managing (to add/delete archetypes)
+	// const archetypeParser = subParsers.add_parser('archetype');
+	// const archetypeSubParser = archetypeParser.add_subparsers();
+
+	// const cmdArchetypes = new CommandArchetypes();
+	// const addParser = archetypeSubParser.add_parser('add');
+	// addParser.add_argument('type');
+	// addParser.add_argument('name');
+	// addParser.set_defaults({ handler: cmdArchetypes.add });
+
+	// const delParser = archetypeSubParser.add_parser('delete');
+	// delParser.add_argument('foo');
+	// delParser.add_argument('bar');
+	// delParser.add_argument('baz');
+	// delParser.set_defaults({ handler: cmdArchetypes.delete });
 
 	const args = parser.parse_args();
+
 	console.dir(args);
-
-	const archetype = archetypes.find(({ name }) => name === args.archetype);
-	if (!archetype) {
-		console.log(`Archetype is not found. Check your config`);
-		exit(1);
-	}
-
-	await mkdirp(cacheDir);
-
-	let archetypeDir: string;
-	switch (archetype.type) {
-	// TODO: implement new types, at least `local`
-	case 'git':
-		archetypeDir = await gitFetcher.fetch(archetype.src);
-		break;
-	default:
-		console.log('Unknown type of archetype');
-		exit(1);
-	}
-
-	console.log({ archetypeDir });
-
-	// TODO: run prepare script if allowed
-
-	const destination = path.resolve(process.cwd());
-
-	const archetypeManifest = await getArchetypeManifest(archetypeDir);
-
-	if (archetypeManifest === null) {
-		console.log('Archetype manifest is not found');
-		exit(1);
-	}
-
-	const { type: archetypeType } = archetypeManifest;
-
 	try {
-		if (archetypeType === ARCHETYPE_TYPE.STATIC_TEMPLATE) {
-			const staticArchetype = new StaticTemplateArchetype();
-			await staticArchetype.apply(archetypeDir, destination);
-		} else if (archetypeType === ARCHETYPE_TYPE.HOOK) {
-			const staticArchetype = new HookArchetype();
-			await staticArchetype.apply(archetypeDir, destination);
+		// Run command handler
+		const { handler, ...otherArgs } = args;
+
+		if (handler) {
+			await handler(otherArgs);
 		} else {
-			console.log('Unknown type of archetype');
-			exit(1);
+			parser.print_help();
 		}
 	} catch (err) {
 		if (err instanceof CriticalError) {
+			// Show message for user
 			console.error(err.message);
 
 			if (err.cause) {
+				// Throw original error
 				throw err.cause;
 			} else {
-				exit(1);
+				process.exit(1);
 			}
 		} else {
 			throw err;
