@@ -10,6 +10,7 @@ import { StaticTemplateArchetype } from '../archetype/StaticTemplateArchetype';
 import { HookArchetype } from '../archetype/HookArchetype';
 import { ArchetypeEntry, ARCHETYPE_TYPE } from '../archetype';
 import { getArchetypeManifest } from '../archetype/utils';
+import { CriticalError } from '../utils';
 
 // TODO: replace `exit` with message to exceptions, catch it on top level and show messages
 // it's necessary to abstract CLI logic of actions
@@ -77,14 +78,23 @@ export const app = async ({ cacheDir }: { cacheDir: string }) => {
 
 	const { type: archetypeType } = archetypeManifest;
 
-	if (archetypeType === ARCHETYPE_TYPE.STATIC_TEMPLATE) {
-		const staticArchetype = new StaticTemplateArchetype();
-		staticArchetype.apply(archetypeDir, destination);
-	} else if (archetypeType === ARCHETYPE_TYPE.HOOK) {
-		const staticArchetype = new HookArchetype();
-		staticArchetype.apply(archetypeDir, destination);
-	} else {
-		console.log('Unknown type of archetype');
-		exit(1);
+	try {
+		if (archetypeType === ARCHETYPE_TYPE.STATIC_TEMPLATE) {
+			const staticArchetype = new StaticTemplateArchetype();
+			await staticArchetype.apply(archetypeDir, destination);
+		} else if (archetypeType === ARCHETYPE_TYPE.HOOK) {
+			const staticArchetype = new HookArchetype();
+			await staticArchetype.apply(archetypeDir, destination);
+		} else {
+			console.log('Unknown type of archetype');
+			exit(1);
+		}
+	} catch (err) {
+		if (err instanceof CriticalError) {
+			console.error(err.message);
+			exit(1);
+		} else {
+			throw err;
+		}
 	}
 };

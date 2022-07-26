@@ -5,6 +5,8 @@ import { ensureDir, pathExists } from 'fs-extra';
 import { getArchetypeManifest } from './utils';
 import { writeFile } from 'fs/promises';
 
+import { CriticalError, executeCommand } from '../utils';
+
 export type File = {
 	path: string;
 	contents: Buffer;
@@ -32,16 +34,27 @@ export class HookArchetype {
 		const manifest = await getArchetypeManifest(archetypeDir);
 
 		if (!manifest) {
-			throw new Error('Manifest not found');
+			throw new CriticalError('Manifest not found');
 		}
 		if (manifest.type !== 'hook') {
-			throw new Error('Invalid type of archetype');
+			throw new CriticalError('Invalid type of archetype');
 		}
 
 		const hookModulePath = path.resolve(archetypeDir, manifest.hook);
 
 		if (!hookModulePath.startsWith(path.resolve(archetypeDir))) {
-			throw new Error('Hook must be placed inside of archetype directory');
+			throw new CriticalError('Hook must be placed inside of archetype directory');
+		}
+
+		// Prepare
+		if (manifest.prepareCommand !== undefined) {
+			const command = manifest.prepareCommand;
+
+			console.log(`Run prepare script "${command}"\n`);
+			const exitCode = await executeCommand(command, { cwd: archetypeDir });
+			if (exitCode !== 0) {
+				throw new CriticalError(`Prepare script exit with code ${exitCode}`);
+			}
 		}
 
 		const filePromises: Promise<any>[] = [];

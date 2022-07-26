@@ -12,6 +12,7 @@ export type ArchetypeStaticTemplate = {
 export type ArchetypeConfigHook = {
 	type: 'hook';
 	hook: string;
+	prepareCommand?: string;
 };
 
 export type ArchetypeCli = {
