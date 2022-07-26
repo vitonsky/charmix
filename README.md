@@ -6,20 +6,10 @@ It's simple and support user defined archetypes.
 
 This project is under construction!
 
-Roadmap:
-
-- [x] Add script to build package
-- [ ] Enable debug prints only in verbose mode
-- [x] Implement user defined archetypes
-  - [x] Copy only files from manifest instead of all files from special directory
-  - [ ] Implement archetype template with script to configure files (i.e set project name)
-- [ ] Implement interactive mode
-- [ ] Cleanup project files
-
 # How it works?
 
 - install it `npm i -g charmix`
-- generate project structure `charmix ts-frontend`
+- generate project structure `charmix use ts-frontend`
 
 # How to use my own archetype?
 
