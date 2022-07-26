@@ -41,7 +41,7 @@ export class CommandUse {
 	}
 
 	public use: CliCommand = async (args: Record<string, any>) => {
-		console.log("It's use command!", args, parseArchetypeParams(args.params));
+		console.log("It's use command!", args);
 
 		const { cacheDir, rootDir } = this.options;
 		const gitFetcher = new GitFetcher(cacheDir);
@@ -96,7 +96,11 @@ export class CommandUse {
 			await staticArchetype.apply(archetypeDir, destination);
 		} else if (archetypeType === ARCHETYPE_TYPE.HOOK) {
 			const hookArchetype = new HookArchetype();
-			await hookArchetype.apply(archetypeDir, destination);
+			await hookArchetype.apply({
+				archetypeDir,
+				destination,
+				parameters: parseArchetypeParams(args.params),
+			});
 		} else {
 			throw new CriticalError('Unknown type of archetype');
 		}

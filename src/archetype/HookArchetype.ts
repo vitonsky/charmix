@@ -30,7 +30,15 @@ export class HookArchetype {
 		return module;
 	};
 
-	public apply = async (archetypeDir: string, destination: string) => {
+	public apply = async ({
+		archetypeDir,
+		destination,
+		parameters,
+	}: {
+		archetypeDir: string;
+		destination: string;
+		parameters: Record<any, any>;
+	}) => {
 		const manifest = await getArchetypeManifest(archetypeDir);
 
 		if (!manifest) {
@@ -85,8 +93,7 @@ export class HookArchetype {
 
 		let files;
 		try {
-			// TODO: provide parameters
-			files = await getFiles({}, { addFile });
+			files = await getFiles(parameters, { addFile });
 		} catch (err) {
 			throw new CriticalError('Exception while hook execution', {
 				cause: err as Error,
