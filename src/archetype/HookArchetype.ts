@@ -59,13 +59,15 @@ export class HookArchetype {
 
 		const filePromises: Promise<any>[] = [];
 		const addFile = async (file: File) => {
-			// TODO: add file validation
 			filePromises.push(
 				(async () => {
 					const filePath = path.resolve(destination, file.path);
 
 					if (!filePath.startsWith(path.resolve(destination))) {
-						throw new Error("Files can't be write out of current directory");
+						console.warn(`Incorrect filename "${filePath}"`);
+						throw new CriticalError(
+							"Files can't be write out of current directory",
+						);
 					}
 
 					if (await pathExists(filePath)) {
@@ -81,11 +83,11 @@ export class HookArchetype {
 
 		const { getFiles } = this.getModule(hookModulePath);
 
-		// TODO: handle script errors?
 		// TODO: provide parameters
-		const files = await getFiles({}, { addFile });
+		const files = await getFiles({}, { addFile }).catch((err) => {
+			throw new CriticalError('Exception while hook execution', { cause: err });
+		});
 
-		// TODO: add files validation
 		if (Array.isArray(files)) {
 			await Promise.all(files.map((file) => addFile(file)));
 		}

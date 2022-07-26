@@ -92,7 +92,12 @@ export const app = async ({ cacheDir }: { cacheDir: string }) => {
 	} catch (err) {
 		if (err instanceof CriticalError) {
 			console.error(err.message);
-			exit(1);
+
+			if (err.cause) {
+				throw err.cause;
+			} else {
+				exit(1);
+			}
 		} else {
 			throw err;
 		}
