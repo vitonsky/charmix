@@ -17,6 +17,7 @@ export const app = async (appOptions: AppOptions) => {
 	const { version } = require(path.join(appOptions.rootDir, 'package.json'));
 
 	const parser = new ArgumentParser({
+		prog: COMMAND_NAME,
 		description: 'Generate project files structure from archetype',
 	});
 
