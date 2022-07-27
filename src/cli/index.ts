@@ -11,6 +11,8 @@ export type AppOptions = {
 	cacheDir: string;
 };
 
+export const COMMAND_NAME = 'charmix';
+
 export const app = async (appOptions: AppOptions) => {
 	const { version } = require(path.join(appOptions.rootDir, 'package.json'));
 

@@ -40,9 +40,51 @@ const parseArchetypeParams = (params: string[]) => {
 
 export class CommandArchetypes {
 	protected options: AppOptions;
-	constructor(options: AppOptions) {
+	protected registry: ArchetypesRegistry;
+	constructor(options: AppOptions, registry: ArchetypesRegistry) {
 		this.options = options;
+		this.registry = registry;
 	}
+
+	public list: CliCommand = async () => {
+		const archetypes = await this.registry.getArchetypes();
+		console.log(archetypes.map(({ name }) => '- ' + name).join('\n'));
+	};
+
+	public add: CliCommand = async (args) => {
+		const { force = false, type, name, reference } = args;
+
+		const archetypes = await this.registry.getArchetypes();
+
+		// Find exists entries with same name and delete or exit program
+		const filteredArchetypes = archetypes.filter((archetype) => {
+			if (archetype.name !== name) return true;
+
+			if (!force) {
+				const message = `Archetype "${args.name}" already exist\n\nIf you want to replace, run with option -f`;
+				throw new CriticalError(message);
+			}
+
+			return false;
+		});
+
+		// Add
+		filteredArchetypes.push({ type: type as any, name, src: reference });
+		await this.registry.setArchetypes(filteredArchetypes);
+	};
+
+	public delete: CliCommand = async (args) => {
+		const { name } = args;
+
+		const archetypes = await this.registry.getArchetypes();
+		const newArray = archetypes.filter((archetype) => archetype.name !== name);
+
+		if (newArray.length !== archetypes.length) {
+			await this.registry.setArchetypes(newArray);
+		} else {
+			console.log(`Archetype "${args.name}" is not found`);
+		}
+	};
 
 	public use: CliCommand = async (args: Record<string, any>) => {
 		console.log("It's use command!", args);
@@ -105,7 +147,8 @@ export class CommandArchetypes {
 }
 
 export const archetypeCommandsBuilder: CommandsBuilder = async (config) => {
-	const use = new CommandArchetypes(config);
+	const registry = new ArchetypesRegistry();
+	const archetypes = new CommandArchetypes(config, registry);
 
 	// Ensure cache dir
 	await mkdirp(config.cacheDir);
@@ -113,15 +156,49 @@ export const archetypeCommandsBuilder: CommandsBuilder = async (config) => {
 	return [
 		{
 			command: 'use',
-			description: 'Apply archetype',
+			description: 'Apply selected archetype',
 			handler: ({ parser }) => {
+				// TODO: add option `directory` to apply archetype not on cwd
 				parser.add_argument('archetype', { help: 'archetype name' });
 				parser.add_argument('params', {
 					nargs: '*',
 					help: 'archetype parameters',
 				});
 
-				return use.use;
+				return archetypes.use;
+			},
+		},
+		{
+			command: 'list',
+			description: 'List available archetypes',
+			handler: () => archetypes.list,
+		},
+		{
+			command: 'add',
+			description: 'Add archetype to registry',
+			handler: ({ parser }) => {
+				parser.add_argument('--type', '-t', {
+					required: true,
+					help: 'Archetype type',
+					choices: ['git', 'local', 'npm'],
+				});
+				parser.add_argument('--force', '-f', {
+					action: 'store_true',
+					help: 'Force add archetype. If archetype with same name already exists, it will be replaced',
+				});
+				parser.add_argument('name');
+				parser.add_argument('reference');
+
+				return archetypes.add;
+			},
+		},
+		{
+			command: 'delete',
+			description: 'Delete archetype from registry',
+			handler: ({ parser }) => {
+				parser.add_argument('name');
+
+				return archetypes.delete;
 			},
 		},
 	];
