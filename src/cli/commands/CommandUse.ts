@@ -2,6 +2,8 @@ import path from 'path';
 
 import { mkdirp } from 'fs-extra';
 
+import { ArchetypeFetcher } from '../../repository/ArchetypeFetcher';
+import { FsFetcher } from '../../repository/ArchetypeFetcher/FsFetcher';
 import { GitFetcher } from '../../repository/ArchetypeFetcher/GitFetcher';
 
 import { StaticTemplateArchetype } from '../../archetype/StaticTemplateArchetype';
@@ -44,7 +46,6 @@ export class CommandUse {
 		console.log("It's use command!", args);
 
 		const { cacheDir, rootDir } = this.options;
-		const gitFetcher = new GitFetcher(cacheDir);
 
 		// TODO: move to main class
 		// Ensure cache dir
@@ -63,6 +64,7 @@ export class CommandUse {
 			// TODO: add warning
 		}
 
+		// Find archetype
 		const archetype = archetypes.find(({ name }) => name === args.archetype);
 		if (!archetype) {
 			throw new CriticalError(
@@ -70,18 +72,23 @@ export class CommandUse {
 			);
 		}
 
-		// TODO: implement new archetype fetchers, at least `local`
+		// Fetch archetype
+		const fetchers: Record<ArchetypeEntry['type'], ArchetypeFetcher> = {
+			git: new GitFetcher(cacheDir),
+			local: new FsFetcher(cacheDir),
+		};
+
 		let archetypeDir: string;
-		switch (archetype.type) {
-		case 'git':
-			archetypeDir = await gitFetcher.fetch(archetype.src);
-			break;
-		default:
+		if (archetype.type in fetchers) {
+			const fetcher = fetchers[archetype.type];
+			archetypeDir = await fetcher.fetch(archetype.src);
+		} else {
 			throw new CriticalError('Unknown type of archetype');
 		}
 
 		console.log({ archetypeDir });
 
+		// Read and apply archetype
 		const archetypeManifest = await getArchetypeManifest(archetypeDir);
 
 		if (archetypeManifest === null) {
