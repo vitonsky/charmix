@@ -3,8 +3,8 @@ import path from 'path';
 import { ArgumentParser } from 'argparse';
 
 import { CriticalError } from '../utils';
-import { archetypeCommandsBuilder } from './commands/CommandUse';
 import { CommandsBuilder } from './commands/CliCommand';
+import { archetypeCommandsBuilder } from './commands/archetypes';
 
 export type AppOptions = {
 	rootDir: string;
@@ -25,8 +25,9 @@ export const app = async (appOptions: AppOptions) => {
 
 	// Register commands
 	const commandBuilders: CommandsBuilder[] = [archetypeCommandsBuilder];
-	commandBuilders.forEach((builder) => {
-		const commands = builder(appOptions);
+
+	for (const builder of commandBuilders) {
+		const commands = await builder(appOptions);
 		for (const command of commands) {
 			const parser = subParsers.add_parser(command.command, {
 				description: command.description,
@@ -34,7 +35,7 @@ export const app = async (appOptions: AppOptions) => {
 			const commandHandler = command.handler({ parser });
 			parser.set_defaults({ handler: commandHandler });
 		}
-	});
+	}
 
 	const args = parser.parse_args();
 

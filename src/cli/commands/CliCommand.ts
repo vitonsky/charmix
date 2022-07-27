@@ -10,4 +10,4 @@ type CommandEntry = {
 	handler: (options: { parser: ArgumentParser }) => CliCommand;
 };
 
-export type CommandsBuilder = (config: AppOptions) => CommandEntry[];
+export type CommandsBuilder = (config: AppOptions) => Promise<CommandEntry[]>;

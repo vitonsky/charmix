@@ -38,7 +38,7 @@ const parseArchetypeParams = (params: string[]) => {
 	return parsedParameters;
 };
 
-export class CommandUse {
+export class CommandArchetypes {
 	protected options: AppOptions;
 	constructor(options: AppOptions) {
 		this.options = options;
@@ -48,10 +48,6 @@ export class CommandUse {
 		console.log("It's use command!", args);
 
 		const { cacheDir } = this.options;
-
-		// TODO: move to main class
-		// Ensure cache dir
-		await mkdirp(cacheDir);
 
 		// Get archetypes
 		const archetypesRegistry = new ArchetypesRegistry();
@@ -108,9 +104,11 @@ export class CommandUse {
 	};
 }
 
-// TODO: move to archetypes class
-export const archetypeCommandsBuilder: CommandsBuilder = (config) => {
-	const use = new CommandUse(config);
+export const archetypeCommandsBuilder: CommandsBuilder = async (config) => {
+	const use = new CommandArchetypes(config);
+
+	// Ensure cache dir
+	await mkdirp(config.cacheDir);
 
 	return [
 		{
