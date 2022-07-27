@@ -1,6 +1,6 @@
 export type ArchetypeEntry = {
 	name: string;
-	type: 'git' | 'local';
+	type: 'git' | 'local' | 'npm';
 	src: string;
 };
 

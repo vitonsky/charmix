@@ -14,6 +14,7 @@ import { CriticalError } from '../../utils';
 
 import { CliCommand } from './CliCommand';
 import { AppOptions } from '..';
+import { NpmFetcher } from '../../repository/ArchetypeFetcher/NpmFetcher';
 
 /**
  * Parse parameters in format `key=value foo=bar bar="long string for one parameter"`
@@ -76,6 +77,7 @@ export class CommandUse {
 		const fetchers: Record<ArchetypeEntry['type'], ArchetypeFetcher> = {
 			git: new GitFetcher(cacheDir),
 			local: new FsFetcher(cacheDir),
+			npm: new NpmFetcher(cacheDir),
 		};
 
 		let archetypeDir: string;
