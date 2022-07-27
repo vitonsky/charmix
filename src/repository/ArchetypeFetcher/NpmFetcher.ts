@@ -5,16 +5,11 @@ import npmFetch from 'npm-registry-fetch';
 import tar from 'tar';
 import axios from 'axios';
 import * as iots from 'io-ts';
-import { isRight } from 'fp-ts/lib/Either';
 
 import { ArchetypeFetcher } from '.';
 import { prepareArchetypeDirectory } from './utils';
 import { CriticalError, isResourceExist } from '../../utils';
-
-const isValidType = <T extends iots.Type<any, any, any>>(
-	type: T,
-	input: unknown,
-): input is iots.TypeOf<T> => isRight(type.decode(input));
+import { isValidType } from '../../validation';
 
 // package metadata API: https://github.com/npm/registry/blob/master/docs/responses/package-metadata.md
 const responseSliceType = iots.type({

@@ -15,6 +15,7 @@ import { CriticalError } from '../../utils';
 import { CliCommand } from './CliCommand';
 import { AppOptions } from '..';
 import { NpmFetcher } from '../../repository/ArchetypeFetcher/NpmFetcher';
+import { ArchetypesRegistry } from '../../repository/ArchetypesRegistry';
 
 /**
  * Parse parameters in format `key=value foo=bar bar="long string for one parameter"`
@@ -46,24 +47,15 @@ export class CommandUse {
 	public use: CliCommand = async (args: Record<string, any>) => {
 		console.log("It's use command!", args);
 
-		const { cacheDir, rootDir } = this.options;
+		const { cacheDir } = this.options;
 
 		// TODO: move to main class
 		// Ensure cache dir
 		await mkdirp(cacheDir);
 
 		// Get archetypes
-		let archetypes: ArchetypeEntry[] = [];
-		try {
-			const content = require(rootDir + '/archetypes.json');
-			if (Array.isArray(content)) {
-				archetypes = content;
-			} else {
-				throw new TypeError('Invalid format of archetypes.json');
-			}
-		} catch (err) {
-			// TODO: add warning
-		}
+		const archetypesRegistry = new ArchetypesRegistry();
+		const archetypes = await archetypesRegistry.getArchetypes();
 
 		// Find archetype
 		const archetype = archetypes.find(({ name }) => name === args.archetype);
