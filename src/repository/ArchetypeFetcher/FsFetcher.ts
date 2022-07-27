@@ -1,9 +1,10 @@
 import path from 'path';
 import crypto from 'crypto';
 
-import { mkdirp, copy, stat } from 'fs-extra';
+import { copy, stat } from 'fs-extra';
 
 import { ArchetypeFetcher } from '.';
+import { prepareArchetypeDirectory } from './utils';
 import { CriticalError, isResourceExist } from '../../utils';
 
 export class FsFetcher implements ArchetypeFetcher {
@@ -29,7 +30,7 @@ export class FsFetcher implements ArchetypeFetcher {
 		const isArchetypeDirExist = await isResourceExist(archetypeDir);
 		if (!isArchetypeDirExist) {
 			// Save repository to cache
-			await mkdirp(archetypeDir);
+			await prepareArchetypeDirectory(archetypeDir);
 			await copy(src, archetypeDir);
 		}
 

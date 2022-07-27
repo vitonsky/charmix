@@ -5,11 +5,11 @@ import npmFetch from 'npm-registry-fetch';
 import tar from 'tar';
 import axios from 'axios';
 import * as iots from 'io-ts';
+import { isRight } from 'fp-ts/lib/Either';
 
 import { ArchetypeFetcher } from '.';
+import { prepareArchetypeDirectory } from './utils';
 import { CriticalError, isResourceExist } from '../../utils';
-import { ensureDir } from 'fs-extra';
-import { isRight } from 'fp-ts/lib/Either';
 
 const isValidType = <T extends iots.Type<any, any, any>>(
 	type: T,
@@ -67,7 +67,7 @@ export class NpmFetcher implements ArchetypeFetcher {
 		}
 
 		// Ensure dir
-		await ensureDir(archetypeDir);
+		await prepareArchetypeDirectory(archetypeDir);
 
 		// Fetch data
 		const tarballStream = await axios.get(tarballUrl, { responseType: 'stream' });
