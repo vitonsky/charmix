@@ -12,7 +12,7 @@ import { ArchetypeEntry, ARCHETYPE_TYPE } from '../../archetype';
 import { getArchetypeManifest } from '../../archetype/utils';
 import { CriticalError } from '../../utils';
 
-import { CliCommand } from './CliCommand';
+import { CliCommand, CommandsBuilder } from './CliCommand';
 import { AppOptions } from '..';
 import { NpmFetcher } from '../../repository/ArchetypeFetcher/NpmFetcher';
 import { ArchetypesRegistry } from '../../repository/ArchetypesRegistry';
@@ -107,3 +107,24 @@ export class CommandUse {
 		}
 	};
 }
+
+// TODO: move to archetypes class
+export const archetypeCommandsBuilder: CommandsBuilder = (config) => {
+	const use = new CommandUse(config);
+
+	return [
+		{
+			command: 'use',
+			description: 'Apply archetype',
+			handler: ({ parser }) => {
+				parser.add_argument('archetype', { help: 'archetype name' });
+				parser.add_argument('params', {
+					nargs: '*',
+					help: 'archetype parameters',
+				});
+
+				return use.use;
+			},
+		},
+	];
+};
