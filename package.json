@@ -14,6 +14,7 @@
 		"lint:text": "npx textlint \"{*,**/*}.md\"",
 		"packages:upgrade": "npx npm-check-updates -u",
 		"configure": "husky install",
+		"createTestDir": "rm -rf ./testDir; mkdir ./testDir",
 		"prepare": "npm run configure"
 	},
 	"devDependencies": {

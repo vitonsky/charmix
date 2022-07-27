@@ -1,3 +1,5 @@
+import path from 'path';
+
 import { ArgumentParser } from 'argparse';
 
 import { CriticalError } from '../utils';
@@ -9,7 +11,7 @@ export type AppOptions = {
 };
 
 export const app = async (appOptions: AppOptions) => {
-	const { version } = require('../package.json');
+	const { version } = require(path.join(appOptions.rootDir, 'package.json'));
 
 	const parser = new ArgumentParser({
 		description: 'Generate project files structure from archetype',
