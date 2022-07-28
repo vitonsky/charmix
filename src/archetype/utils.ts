@@ -17,7 +17,7 @@ export const ArchetypeManifestOptionType = iots.intersection([
 	}),
 	iots.partial({
 		required: iots.boolean,
-		defaultValue: iots.string,
+		defaultValue: iots.union([iots.string, iots.number, iots.boolean, iots.null]),
 		description: iots.string,
 	}),
 ]);
@@ -52,6 +52,7 @@ export const getArchetypeManifest = async (dir: string) => {
 		const rawString = fileBuffer.toString('utf-8');
 		const rawJson = JSON.parse(rawString);
 
+		// TODO: use reporter and throw error to report a problem
 		const manifestData: ArchetypeManifest | null = isValidType(
 			ArchetypeManifestType,
 			rawJson,
