@@ -86,25 +86,9 @@ export class CommandArchetypes {
 		}
 	};
 
-	public use: CliCommand = async (args: Record<string, any>) => {
-		console.log("It's use command!", args);
-
-		const { archetype: archetypeName, params, directory } = args;
+	private fetchArchetype = async (archetype: ArchetypeEntry) => {
 		const { cacheDir } = this.options;
 
-		// Get archetypes
-		const archetypesRegistry = new ArchetypesRegistry();
-		const archetypes = await archetypesRegistry.getArchetypes();
-
-		// Find archetype
-		const archetype = archetypes.find(({ name }) => name === archetypeName);
-		if (!archetype) {
-			throw new CriticalError(
-				`Archetype "${archetypeName}" is not found. Check your config`,
-			);
-		}
-
-		// Fetch archetype
 		const fetchers: Record<ArchetypeEntry['type'], ArchetypeFetcher> = {
 			git: new GitFetcher(cacheDir),
 			local: new FsFetcher(cacheDir),
@@ -119,7 +103,38 @@ export class CommandArchetypes {
 			throw new CriticalError('Unknown type of archetype');
 		}
 
-		console.log({ archetypeDir });
+		return archetypeDir;
+	};
+
+	private getArchetypeOptions = async (archetypeDir: string) => {
+		const manifest = await getArchetypeManifest(archetypeDir);
+
+		if (manifest === null || manifest.type !== 'hook') return [];
+		return manifest.options ?? [];
+	};
+
+	public use: CliCommand = async (args: Record<string, any>) => {
+		console.log("It's use command!", args);
+
+		const { archetype: archetypeName, params, directory } = args;
+
+		// Get archetypes
+		const archetypesRegistry = new ArchetypesRegistry();
+		const archetypes = await archetypesRegistry.getArchetypes();
+
+		// Find archetype
+		const archetype = archetypes.find(({ name }) => name === archetypeName);
+		if (!archetype) {
+			throw new CriticalError(
+				`Archetype "${archetypeName}" is not found. Check your config`,
+			);
+		}
+
+		// Fetch archetype
+		const archetypeDir = await this.fetchArchetype(archetype);
+		const archetypeOptions = await this.getArchetypeOptions(archetypeDir);
+
+		console.log({ archetypeDir, archetypeOptions });
 
 		// Read and apply archetype
 		const archetypeManifest = await getArchetypeManifest(archetypeDir);
@@ -135,11 +150,28 @@ export class CommandArchetypes {
 			const staticArchetype = new StaticTemplateArchetype();
 			await staticArchetype.apply(archetypeDir, destination);
 		} else if (archetypeType === ARCHETYPE_TYPE.HOOK) {
+			const parameters = parseArchetypeParams(params);
+
+			const requiredParams = archetypeOptions.filter(
+				({ name, required }) => required && !(name in parameters),
+			);
+			if (requiredParams.length > 0) {
+				const message =
+					'Not specified required options:\n' +
+					requiredParams
+						.map(
+							({ name, description }) =>
+								`- ${name}` + (description ? `: ${description}` : ''),
+						)
+						.join('\n');
+				throw new CriticalError(message);
+			}
+
 			const hookArchetype = new HookArchetype();
 			await hookArchetype.apply({
 				archetypeDir,
 				destination,
-				parameters: parseArchetypeParams(params),
+				parameters,
 			});
 		} else {
 			throw new CriticalError('Unknown type of archetype');
