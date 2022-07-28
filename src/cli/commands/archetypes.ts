@@ -89,6 +89,7 @@ export class CommandArchetypes {
 	public use: CliCommand = async (args: Record<string, any>) => {
 		console.log("It's use command!", args);
 
+		const { archetype: archetypeName, params, directory } = args;
 		const { cacheDir } = this.options;
 
 		// Get archetypes
@@ -96,10 +97,10 @@ export class CommandArchetypes {
 		const archetypes = await archetypesRegistry.getArchetypes();
 
 		// Find archetype
-		const archetype = archetypes.find(({ name }) => name === args.archetype);
+		const archetype = archetypes.find(({ name }) => name === archetypeName);
 		if (!archetype) {
 			throw new CriticalError(
-				`Archetype "${args.archetype}" is not found. Check your config`,
+				`Archetype "${archetypeName}" is not found. Check your config`,
 			);
 		}
 
@@ -128,7 +129,7 @@ export class CommandArchetypes {
 		}
 
 		const { type: archetypeType } = archetypeManifest;
-		const destination = path.resolve(process.cwd());
+		const destination = path.resolve(process.cwd(), directory ?? '.');
 
 		if (archetypeType === ARCHETYPE_TYPE.STATIC_TEMPLATE) {
 			const staticArchetype = new StaticTemplateArchetype();
@@ -138,7 +139,7 @@ export class CommandArchetypes {
 			await hookArchetype.apply({
 				archetypeDir,
 				destination,
-				parameters: parseArchetypeParams(args.params),
+				parameters: parseArchetypeParams(params),
 			});
 		} else {
 			throw new CriticalError('Unknown type of archetype');
@@ -158,7 +159,14 @@ export const archetypeCommandsBuilder: CommandsBuilder = async (config) => {
 			command: 'use',
 			description: 'Apply selected archetype',
 			handler: ({ parser }) => {
-				// TODO: add option `directory` to apply archetype not on cwd
+				parser.add_argument('--directory', '-d', {
+					help: 'apply archetype to specified directory instead of current working directory',
+				});
+				// TODO: implement
+				// parser.add_argument('--clear', {
+				// 	action: 'store_true',
+				// 	help: 'remove ALL files and directories in target directory before apply archetype',
+				// });
 				parser.add_argument('archetype', { help: 'archetype name' });
 				parser.add_argument('params', {
 					nargs: '*',
@@ -179,12 +187,12 @@ export const archetypeCommandsBuilder: CommandsBuilder = async (config) => {
 			handler: ({ parser }) => {
 				parser.add_argument('--type', '-t', {
 					required: true,
-					help: 'Archetype type',
+					help: 'archetype type',
 					choices: ['git', 'local', 'npm'],
 				});
 				parser.add_argument('--force', '-f', {
 					action: 'store_true',
-					help: 'Force add archetype. If archetype with same name already exists, it will be replaced',
+					help: 'force add archetype. If archetype with same name already exists, it will be replaced',
 				});
 				parser.add_argument('name');
 				parser.add_argument('reference');
