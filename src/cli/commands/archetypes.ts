@@ -38,6 +38,7 @@ const parseArchetypeParams = (params: string[]) => {
 	return parsedParameters;
 };
 
+// TODO: split this class
 export class CommandArchetypes {
 	protected options: AppOptions;
 	protected registry: ArchetypesRegistry;
@@ -46,9 +47,79 @@ export class CommandArchetypes {
 		this.registry = registry;
 	}
 
-	public list: CliCommand = async () => {
+	public list: CliCommand = async (args) => {
+		const { archetype } = args;
+
 		const archetypes = await this.registry.getArchetypes();
-		console.log(archetypes.map(({ name }) => '- ' + name).join('\n'));
+		if (archetype) {
+			// Show archetype help
+			const archetypeReference = archetypes.find(({ name }) => name === archetype);
+			if (!archetypeReference) {
+				throw new CriticalError(`Archetype "${args.name}" not found`);
+			}
+
+			const { manifest } = await this.getArchetypeInfo(archetypeReference);
+
+			console.log(`Archetype: ${archetypeReference.name}\n`);
+
+			if (manifest.name) {
+				console.log(`Original name: ${manifest.name}`);
+			}
+			if (manifest.version) {
+				console.log(`Version: ${manifest.version}`);
+			}
+			if (manifest.type) {
+				console.log(`Type: ${manifest.type}`);
+			}
+
+			// TODO: show files list to copy for `staticTemplate` type
+			if (manifest.type === 'hook') {
+				if (manifest.prepareCommand) {
+					console.log(`Command to prepare: ${manifest.prepareCommand}`);
+				}
+
+				// Hook info
+				const options = (manifest.options ?? []).sort(
+					(a, b) => Number(a.required) - Number(b.required),
+				);
+				if (options.length > 0) {
+					console.log(`\nOptions:`);
+					const formattedOptions = options
+						.map(({ name, description, required, defaultValue }) => {
+							const marker = required ? '-' : '*';
+							const indent = '    ';
+
+							let message = `${marker} ${name}`;
+
+							if (defaultValue !== undefined) {
+								message += ` [default: ${defaultValue}]`;
+							}
+							if (description) {
+								message += `\n${indent}${description.replace(
+									'\n',
+									'\n' + indent,
+								)}`;
+							}
+
+							return message;
+						})
+						.join('\n');
+
+					console.log(formattedOptions);
+				}
+			}
+
+			if (manifest.description) {
+				console.log(`\nDescription:\n${manifest.description}`);
+			}
+
+			if (manifest.homepage) {
+				console.log(`\nHome page: ${manifest.homepage}`);
+			}
+		} else {
+			// List archetypes
+			console.log(archetypes.map(({ name }) => '- ' + name).join('\n'));
+		}
 	};
 
 	public add: CliCommand = async (args) => {
@@ -106,11 +177,17 @@ export class CommandArchetypes {
 		return archetypeDir;
 	};
 
-	private getArchetypeOptions = async (archetypeDir: string) => {
-		const manifest = await getArchetypeManifest(archetypeDir);
+	private getArchetypeInfo = async (archetype: ArchetypeEntry) => {
+		const directory = await this.fetchArchetype(archetype);
 
-		if (manifest === null || manifest.type !== 'hook') return [];
-		return manifest.options ?? [];
+		const manifest = await getArchetypeManifest(directory);
+		if (manifest === null) {
+			throw new CriticalError(
+				`Manifest of archetype "${archetype.name}" is not found`,
+			);
+		}
+
+		return { directory, manifest };
 	};
 
 	public use: CliCommand = async (args: Record<string, any>) => {
@@ -131,20 +208,15 @@ export class CommandArchetypes {
 		}
 
 		// Fetch archetype
-		const archetypeDir = await this.fetchArchetype(archetype);
-		const archetypeOptions = await this.getArchetypeOptions(archetypeDir);
-
-		console.log({ archetypeDir, archetypeOptions });
+		const archetypeInfo = await this.getArchetypeInfo(archetype);
 
 		// Read and apply archetype
-		const archetypeManifest = await getArchetypeManifest(archetypeDir);
+		const archetypeDir = archetypeInfo.directory;
+		const { type: archetypeType } = archetypeInfo.manifest;
 
-		if (archetypeManifest === null) {
-			throw new CriticalError('Archetype manifest is not found');
-		}
-
-		const { type: archetypeType } = archetypeManifest;
 		const destination = path.resolve(process.cwd(), directory ?? '.');
+
+		console.log({ archetypeDir });
 
 		if (archetypeType === ARCHETYPE_TYPE.STATIC_TEMPLATE) {
 			const staticArchetype = new StaticTemplateArchetype();
@@ -152,7 +224,7 @@ export class CommandArchetypes {
 		} else if (archetypeType === ARCHETYPE_TYPE.HOOK) {
 			const parameters = parseArchetypeParams(params);
 
-			const requiredParams = archetypeOptions.filter(
+			const requiredParams = (archetypeInfo.manifest.options ?? []).filter(
 				({ name, required }) => required && !(name in parameters),
 			);
 			if (requiredParams.length > 0) {
@@ -211,7 +283,13 @@ export const archetypeCommandsBuilder: CommandsBuilder = async (config) => {
 		{
 			command: 'list',
 			description: 'List available archetypes',
-			handler: () => archetypes.list,
+			handler: ({ parser }) => {
+				parser.add_argument('-a', '--archetype', {
+					help: 'show archetype description and options',
+				});
+
+				return archetypes.list;
+			},
 		},
 		{
 			command: 'add',

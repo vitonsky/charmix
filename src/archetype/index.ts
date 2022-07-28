@@ -31,6 +31,8 @@ export type ArchetypeCli = {
 export type ArchetypeManifest = {
 	name?: string;
 	version?: string;
+	description?: string;
+	homepage?: string;
 } & (ArchetypeStaticTemplate | ArchetypeConfigHook | ArchetypeCli);
 
 export enum ARCHETYPE_TYPE {

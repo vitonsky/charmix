@@ -11,9 +11,22 @@ export const ArchetypeStaticTemplateType = iots.type({
 	files: iots.union([iots.string, iots.array(iots.string)]),
 });
 
+const OptionNameType = new iots.Type<string, string, unknown>(
+	'string',
+	(input: unknown): input is string =>
+		typeof input === 'string' && input.match(/^[a-z0-9-_]+$/iu) !== null,
+	// `iots.success` and `iots.failure` are helpers used to build `Either` instances
+	(input, context) =>
+		typeof input === 'string' && input.match(/^[a-z0-9-_]+$/iu) !== null
+			? iots.success(input)
+			: iots.failure(input, context),
+	// `A` and `O` are the same, so `encode` is just the identity function
+	iots.identity,
+);
+
 export const ArchetypeManifestOptionType = iots.intersection([
 	iots.type({
-		name: iots.string,
+		name: OptionNameType,
 	}),
 	iots.partial({
 		required: iots.boolean,
@@ -37,6 +50,8 @@ export const ArchetypeManifestType = iots.intersection([
 	iots.partial({
 		name: iots.string,
 		version: iots.string,
+		description: iots.string,
+		homepage: iots.string,
 	}),
 
 	iots.union([ArchetypeStaticTemplateType, ArchetypeConfigHookType]),
