@@ -9,10 +9,18 @@ export type ArchetypeStaticTemplate = {
 	files: string | string[];
 };
 
+export type ArchetypeManifestOption = {
+	name: string;
+	required?: boolean;
+	defaultValue?: string;
+	description?: string;
+};
+
 export type ArchetypeConfigHook = {
 	type: 'hook';
 	hook: string;
 	prepareCommand?: string;
+	options?: ArchetypeManifestOption[];
 };
 
 export type ArchetypeCli = {

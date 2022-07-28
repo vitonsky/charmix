@@ -11,6 +11,17 @@ export const ArchetypeStaticTemplateType = iots.type({
 	files: iots.union([iots.string, iots.array(iots.string)]),
 });
 
+export const ArchetypeManifestOptionType = iots.intersection([
+	iots.type({
+		name: iots.string,
+	}),
+	iots.partial({
+		required: iots.boolean,
+		defaultValue: iots.string,
+		description: iots.string,
+	}),
+]);
+
 export const ArchetypeConfigHookType = iots.intersection([
 	iots.type({
 		type: iots.literal('hook'),
@@ -18,6 +29,7 @@ export const ArchetypeConfigHookType = iots.intersection([
 	}),
 	iots.partial({
 		prepareCommand: iots.string,
+		options: iots.array(ArchetypeManifestOptionType),
 	}),
 ]);
 
