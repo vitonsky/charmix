@@ -2,10 +2,10 @@ import path from 'path';
 
 import { ensureDir, pathExists } from 'fs-extra';
 
-import { getArchetypeManifest } from './utils';
+import { getArchetypeManifest } from '../utils';
 import { writeFile } from 'fs/promises';
 
-import { CriticalError, executeCommand } from '../utils';
+import { CriticalError, executeCommand } from '../../utils';
 
 export type File = {
 	path: string;

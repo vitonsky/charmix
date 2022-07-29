@@ -15,6 +15,9 @@ export const ArchetypeEntryType = iots.type({
 export const ArchetypeEntriesType = iots.array(ArchetypeEntryType);
 
 // TODO: implement safe concurrent read/write
+/**
+ * Manage archetypes references
+ */
 export class ArchetypesRegistry {
 	// protected readonly registryVersion = 1;
 	protected readonly registryDir = path.join(homedir(), '.charmix');

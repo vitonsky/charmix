@@ -9,10 +9,18 @@ export type ArchetypeStaticTemplate = {
 	files: string | string[];
 };
 
+export type ArchetypeManifestOption = {
+	name: string;
+	required?: boolean;
+	defaultValue?: string;
+	description?: string;
+};
+
 export type ArchetypeConfigHook = {
 	type: 'hook';
 	hook: string;
 	prepareCommand?: string;
+	options?: ArchetypeManifestOption[];
 };
 
 export type ArchetypeCli = {
@@ -23,6 +31,8 @@ export type ArchetypeCli = {
 export type ArchetypeManifest = {
 	name?: string;
 	version?: string;
+	description?: string;
+	homepage?: string;
 } & (ArchetypeStaticTemplate | ArchetypeConfigHook | ArchetypeCli);
 
 export enum ARCHETYPE_TYPE {

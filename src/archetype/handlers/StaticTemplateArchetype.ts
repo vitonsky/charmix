@@ -3,8 +3,8 @@ import path from 'path';
 import fsextra from 'fs-extra';
 import glob from 'glob-promise';
 
-import { isResourceExist } from '../utils';
-import { getArchetypeManifest } from './utils';
+import { isResourceExist } from '../../utils';
+import { getArchetypeManifest } from '../utils';
 
 export class StaticTemplateArchetype {
 	public apply = async (archetypeDir: string, destination: string) => {
