@@ -10,7 +10,7 @@ import { StaticTemplateArchetype } from '../../archetype/StaticTemplateArchetype
 import { HookArchetype } from '../../archetype/HookArchetype';
 import { ArchetypeEntry, ARCHETYPE_TYPE } from '../../archetype';
 import { getArchetypeManifest } from '../../archetype/utils';
-import { CriticalError } from '../../utils';
+import { CriticalError, nodePrompt } from '../../utils';
 
 import { CliCommand, CommandsBuilder } from './CliCommand';
 import { AppOptions } from '..';
@@ -80,7 +80,7 @@ export class CommandArchetypes {
 
 				// Hook info
 				const options = (manifest.options ?? []).sort(
-					(a, b) => Number(a.required) - Number(b.required),
+					(a, b) => Number(!a.required) - Number(!b.required),
 				);
 				if (options.length > 0) {
 					console.log(`\nOptions:`);
@@ -190,10 +190,11 @@ export class CommandArchetypes {
 		return { directory, manifest };
 	};
 
+	// TODO: this method too long, refactor it
 	public use: CliCommand = async (args: Record<string, any>) => {
 		console.log("It's use command!", args);
 
-		const { archetype: archetypeName, params, directory } = args;
+		const { archetype: archetypeName, params, directory, interactive } = args;
 
 		// Get archetypes
 		const archetypesRegistry = new ArchetypesRegistry();
@@ -224,17 +225,103 @@ export class CommandArchetypes {
 		} else if (archetypeType === ARCHETYPE_TYPE.HOOK) {
 			const parameters = parseArchetypeParams(params);
 
+			// Enable interactive mode
+			if (interactive) {
+				const sortedOptions = (archetypeInfo.manifest.options ?? []).sort(
+					(a, b) => Number(!a.required) - Number(!b.required),
+				);
+
+				console.log(`Configure archetype "${archetype.name}"`);
+
+				let skipQuestions = false;
+				let shouldSuggestToSkipOptional = true;
+				for (const idx in sortedOptions) {
+					const option = sortedOptions[idx];
+
+					// Suggest to skip other questions after answer to all required questions
+					if (shouldSuggestToSkipOptional && !option.required) {
+						// Don't suggest if first option is not required
+						if (Number(idx) === 0) {
+							shouldSuggestToSkipOptional = false;
+						} else {
+							// Suggest to skip
+							while (true) {
+								const answer = await nodePrompt(
+									`Do you want to skip ${
+										sortedOptions.length - Number(idx)
+									} not required options? [Y/n]: `,
+								);
+
+								const normalizedAnswer = (answer || '')
+									.trim()
+									.toLowerCase();
+								if (['y', 'yes'].includes(normalizedAnswer)) {
+									skipQuestions = true;
+									break;
+								} else if (['n', 'no'].includes(normalizedAnswer)) {
+									break;
+								}
+							}
+
+							shouldSuggestToSkipOptional = false;
+						}
+					}
+
+					// Skip other questions
+					if (skipQuestions) {
+						break;
+					}
+
+					const step = `[${Number(idx) + 1}/${sortedOptions.length}]`;
+					const description = option.description
+						? ` - ${option.description}`
+						: '';
+					console.log(`\n${step} ${option.name}` + description);
+
+					// Get answer
+					while (true) {
+						const currentValue =
+							parameters[option.name] ?? option.defaultValue;
+						const currentValueText =
+							currentValue !== undefined
+								? ` (current: ${currentValue})`
+								: '';
+						const answer = await nodePrompt(
+							`${option.name}${currentValueText}: `,
+						);
+						if (answer || !option.required || currentValue !== undefined) {
+							// Write answer
+							if (answer) {
+								parameters[option.name] = answer;
+							}
+
+							// Next question if option is not required or if got answer
+							break;
+						}
+					}
+				}
+			}
+
 			const requiredParams = (archetypeInfo.manifest.options ?? []).filter(
 				({ name, required }) => required && !(name in parameters),
 			);
+
 			if (requiredParams.length > 0) {
 				const message =
 					'Not specified required options:\n' +
 					requiredParams
-						.map(
-							({ name, description }) =>
-								`- ${name}` + (description ? `: ${description}` : ''),
-						)
+						.map(({ name, description }) => {
+							const optionName = `- ${name}`;
+							const descriptionPrefix = ': ';
+							const indent = optionName.length + descriptionPrefix.length;
+							return (
+								optionName +
+								(description
+									? descriptionPrefix +
+									  description.replace('\n', '\n' + ' '.repeat(indent))
+									: '')
+							);
+						})
 						.join('\n');
 				throw new CriticalError(message);
 			}
@@ -265,6 +352,11 @@ export const archetypeCommandsBuilder: CommandsBuilder = async (config) => {
 			handler: ({ parser }) => {
 				parser.add_argument('--directory', '-d', {
 					help: 'apply archetype to specified directory instead of current working directory',
+				});
+
+				parser.add_argument('--interactive', '-i', {
+					action: 'store_true',
+					help: 'enable interactive mode',
 				});
 				// TODO: implement
 				// parser.add_argument('--clear', {

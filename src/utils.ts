@@ -1,5 +1,6 @@
 import { spawn, SpawnOptions } from 'child_process';
 import fs from 'fs/promises';
+import readline from 'readline';
 
 /**
  * Error to throw and show message to user
@@ -40,5 +41,17 @@ export const executeCommand = async (command: string, options: SpawnOptions) =>
 
 		prepareScript.on('close', (code) => {
 			res(code || 0);
+		});
+	});
+
+export const nodePrompt = (text: string) =>
+	new Promise<string>((res) => {
+		const readlineInstance = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout,
+		});
+		readlineInstance.question(text, (response: string) => {
+			readlineInstance.close();
+			res(response);
 		});
 	});
