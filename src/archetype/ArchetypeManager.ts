@@ -1,16 +1,18 @@
 import { ArchetypeEntry } from '.';
 import { getArchetypeManifest } from './utils';
-import { ArchetypeFetcher } from '../repository/ArchetypeFetcher';
-import { FsFetcher } from '../repository/ArchetypeFetcher/FsFetcher';
-import { GitFetcher } from '../repository/ArchetypeFetcher/GitFetcher';
-import { NpmFetcher } from '../repository/ArchetypeFetcher/NpmFetcher';
+import { ArchetypeFetcher } from './ArchetypeFetcher';
+import { FsFetcher } from './ArchetypeFetcher/FsFetcher';
+import { GitFetcher } from './ArchetypeFetcher/GitFetcher';
+import { NpmFetcher } from './ArchetypeFetcher/NpmFetcher';
 import { CriticalError } from '../utils';
 
 type ArchetypeManagerOptions = {
 	cacheDir: string;
 };
 
-// TODO: move to `ArchetypesRegistry`
+/**
+ * Manage archetypes
+ */
 export class ArchetypeManager {
 	protected options: ArchetypeManagerOptions;
 	constructor(options: ArchetypeManagerOptions) {
