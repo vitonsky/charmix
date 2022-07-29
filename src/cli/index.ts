@@ -4,7 +4,12 @@ import { ArgumentParser } from 'argparse';
 
 import { CriticalError } from '../utils';
 import { CommandsBuilder } from './commands/CliCommand';
-import { archetypeCommandsBuilder } from './commands/archetypes';
+
+// Commands
+import { buildArchetypeAdd } from './commands/archetype/add';
+import { buildArchetypeDelete } from './commands/archetype/delete';
+import { buildArchetypeList } from './commands/archetype/list';
+import { buildArchetypeUse } from './commands/archetype/use';
 
 export type AppOptions = {
 	rootDir: string;
@@ -27,7 +32,12 @@ export const app = async (appOptions: AppOptions) => {
 	parser.add_argument('-v', '--version', { action: 'version', version });
 
 	// Register commands
-	const commandBuilders: CommandsBuilder[] = [archetypeCommandsBuilder];
+	const commandBuilders: CommandsBuilder[] = [
+		buildArchetypeAdd,
+		buildArchetypeDelete,
+		buildArchetypeList,
+		buildArchetypeUse,
+	];
 
 	for (const builder of commandBuilders) {
 		const commands = await builder(appOptions);

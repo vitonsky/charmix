@@ -11,3 +11,5 @@ type CommandEntry = {
 };
 
 export type CommandsBuilder = (config: AppOptions) => Promise<CommandEntry[]>;
+
+export type CommandHandlerConstructor<T = {}> = (parameters: T) => CliCommand;
