@@ -148,7 +148,8 @@ export const prepareArchetypeUse: CommandHandlerConstructor<{
 				}
 
 				const requiredParams = (archetypeInfo.manifest.options ?? []).filter(
-					({ name, required }) => required && !(name in parameters),
+					({ name, required, defaultValue }) =>
+						required && defaultValue === undefined && !(name in parameters),
 				);
 
 				if (requiredParams.length > 0) {
