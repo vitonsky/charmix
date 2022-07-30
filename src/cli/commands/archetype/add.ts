@@ -1,4 +1,3 @@
-import { AppOptions } from '../..';
 import { ArchetypeReference } from '../../../archetype';
 import { ArchetypeManager } from '../../../archetype/ArchetypeManager';
 import { ArchetypesRegistry } from '../../../repository/ArchetypesRegistry';
@@ -6,14 +5,13 @@ import { CriticalError } from '../../../utils';
 import { CommandHandlerConstructor, CommandsBuilder } from '../CliCommand';
 
 export const prepareArchetypeAdd: CommandHandlerConstructor<{
-	config: AppOptions;
 	registry: ArchetypesRegistry;
+	archetypesManager: ArchetypeManager;
 }> =
-	({ config, registry }) =>
+	({ registry, archetypesManager }) =>
 		async (args: Record<string, any>) => {
 			const { force = false, type, name, reference } = args;
 
-			const archetypeManager = new ArchetypeManager({ cacheDir: config.cacheDir });
 			const archetypes = await registry.getArchetypes();
 
 			// Exit if archetype already exists
@@ -34,7 +32,7 @@ export const prepareArchetypeAdd: CommandHandlerConstructor<{
 
 			// Install
 			console.log('Fetch archetype...');
-			const temporaryArchetype = await archetypeManager.fetchArchetypeToTempDirectory({
+			const temporaryArchetype = await archetypesManager.fetchArchetypeToTempDirectory({
 				type,
 				src: reference,
 			});
@@ -59,10 +57,10 @@ export const prepareArchetypeAdd: CommandHandlerConstructor<{
 
 			console.log('Install archetype...');
 			// delete if exists
-			await archetypeManager.delete(archetypeRef);
+			await archetypesManager.delete(archetypeRef);
 
 			// install from temporary directory
-			archetypeManager.install(archetypeRef, temporaryArchetype.path);
+			archetypesManager.install(archetypeRef, temporaryArchetype.path);
 
 			// Add to registry
 			const newArchetypesList = archetypes
@@ -70,9 +68,11 @@ export const prepareArchetypeAdd: CommandHandlerConstructor<{
 				.concat(archetypeRef);
 
 			await registry.setArchetypes(newArchetypesList);
+
+			console.log(`Archetype "${archetypeName}" been successfully installed`);
 		};
 
-export const buildArchetypeAdd: CommandsBuilder = async (config) => [
+export const buildArchetypeAdd: CommandsBuilder = async ({ cacheDir }) => [
 	{
 		command: 'add',
 		description: 'Add archetype to registry',
@@ -90,7 +90,8 @@ export const buildArchetypeAdd: CommandsBuilder = async (config) => [
 			parser.add_argument('reference');
 
 			const registry = new ArchetypesRegistry();
-			return prepareArchetypeAdd({ config, registry });
+			const archetypesManager = new ArchetypeManager({ cacheDir });
+			return prepareArchetypeAdd({ registry, archetypesManager });
 		},
 	},
 ];
