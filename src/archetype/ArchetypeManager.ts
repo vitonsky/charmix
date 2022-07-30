@@ -1,3 +1,6 @@
+import path from 'path';
+import { ensureDir, mkdtemp, move, rm } from 'fs-extra';
+
 import { ArchetypeReference } from '.';
 import { getArchetypeManifest } from './utils';
 import { ArchetypeFetcher } from './ArchetypeFetcher';
@@ -5,8 +8,6 @@ import { FsFetcher } from './ArchetypeFetcher/FsFetcher';
 import { GitFetcher } from './ArchetypeFetcher/GitFetcher';
 import { NpmFetcher } from './ArchetypeFetcher/NpmFetcher';
 import { CriticalError, isResourceExist } from '../utils';
-import path from 'path';
-import { ensureDir, move, rm } from 'fs-extra';
 
 type ArchetypeManagerOptions = {
 	cacheDir: string;
@@ -36,7 +37,7 @@ export class ArchetypeManager {
 	 * @returns path to directory contains archetype files
 	 */
 	private fetchArchetype = async (
-		archetype: ArchetypeReference,
+		archetype: Pick<ArchetypeReference, 'type' | 'src'>,
 		archetypesDir: string,
 	) => {
 		const fetchers: Record<ArchetypeReference['type'], ArchetypeFetcher> = {
@@ -53,31 +54,20 @@ export class ArchetypeManager {
 		}
 	};
 
-	private getArchetypeDirPath = (
-		archetype: ArchetypeReference,
-		options?: { temporary?: boolean },
-	) => {
-		const { temporary = false } = options ?? {};
-		return path.join(
-			temporary ? this.tmpDir : this.archetypesDir,
-			escapeFilename(archetype.name),
-		);
+	private getArchetypeDirPath = (archetype: ArchetypeReference) => {
+		return path.join(this.archetypesDir, escapeFilename(archetype.name));
 	};
 
-	// TODO: add case when name is not specified
-	public install = async (archetype: ArchetypeReference) => {
-		const archetypePath = this.getArchetypeDirPath(archetype);
-
-		const isArchetypeInstalled = await isResourceExist(archetypePath);
-		if (isArchetypeInstalled) {
-			throw Error(`Archetype is already installed`);
-		}
-
-		const tmpPath = this.getArchetypeDirPath(archetype, { temporary: true });
-
-		// Delete directory to clean install
-		await rm(tmpPath, { force: true, recursive: true });
-		await ensureDir(tmpPath);
+	/**
+	 * Fetch archetype to temporary directory and parse manifest
+	 *
+	 * It's useful to use and validate archetype with no installing
+	 */
+	public fetchArchetypeToTempDirectory = async (
+		archetype: Pick<ArchetypeReference, 'type' | 'src'>,
+	) => {
+		await ensureDir(this.tmpDir);
+		const tmpPath = await mkdtemp(path.join(this.tmpDir, 'archetype-'));
 
 		// Fetch
 		const archetypeTmpPath = await this.fetchArchetype(archetype, tmpPath);
@@ -88,9 +78,37 @@ export class ArchetypeManager {
 			throw new Error(`Manifest is not found`);
 		}
 
+		return {
+			path: archetypeTmpPath,
+			manifest,
+		};
+	};
+
+	public install = async (archetype: ArchetypeReference, installFrom?: string) => {
+		const archetypePath = this.getArchetypeDirPath(archetype);
+
+		const isArchetypeInstalled = await isResourceExist(archetypePath);
+		if (isArchetypeInstalled) {
+			throw Error(`Archetype is already installed`);
+		}
+
+		let archetypeTmpPath: string;
+		if (installFrom !== undefined) {
+			// Use provided archetype directory
+			archetypeTmpPath = installFrom;
+		} else {
+			// Fetch archetype
+			const tmpArchetype = await this.fetchArchetypeToTempDirectory(archetype);
+			archetypeTmpPath = tmpArchetype.path;
+		}
+
 		// Copy temporary files
-		console.log(archetypeTmpPath, archetypePath);
 		await move(archetypeTmpPath, archetypePath);
+	};
+
+	public delete = async (archetype: ArchetypeReference) => {
+		const archetypePath = this.getArchetypeDirPath(archetype);
+		await rm(archetypePath, { force: true, recursive: true });
 	};
 
 	public getArchetypeInfo = async (archetype: ArchetypeReference) => {

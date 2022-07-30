@@ -10,6 +10,7 @@ import { buildArchetypeAdd } from './commands/archetype/add';
 import { buildArchetypeDelete } from './commands/archetype/delete';
 import { buildArchetypeList } from './commands/archetype/list';
 import { buildArchetypeUse } from './commands/archetype/use';
+import { buildArchetypeUpdate } from './commands/archetype/update';
 
 export type AppOptions = {
 	rootDir: string;
@@ -37,6 +38,7 @@ export const app = async (appOptions: AppOptions) => {
 		buildArchetypeDelete,
 		buildArchetypeList,
 		buildArchetypeUse,
+		buildArchetypeUpdate,
 	];
 
 	for (const builder of commandBuilders) {
