@@ -12,7 +12,7 @@ export const ArchetypeEntryType = iots.type({
 	type: iots.union([iots.literal('git'), iots.literal('local'), iots.literal('npm')]),
 });
 
-export const ArchetypeEntriesType = iots.array(ArchetypeEntryType);
+export const ArchetypeReferenceType = iots.array(ArchetypeEntryType);
 
 // TODO: implement safe concurrent read/write
 /**
@@ -39,11 +39,11 @@ export class ArchetypesRegistry {
 		const rawString = buffer.toString('utf8');
 		const rawJson = JSON.parse(rawString);
 
-		return isValidType(ArchetypeEntriesType, rawJson) ? rawJson : [];
+		return isValidType(ArchetypeReferenceType, rawJson) ? rawJson : [];
 	};
 
 	public setArchetypes = async (
-		archetypes: iots.TypeOf<typeof ArchetypeEntriesType>,
+		archetypes: iots.TypeOf<typeof ArchetypeReferenceType>,
 	) => {
 		await this.sync();
 

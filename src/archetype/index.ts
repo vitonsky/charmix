@@ -1,4 +1,4 @@
-export type ArchetypeEntry = {
+export type ArchetypeReference = {
 	name: string;
 	type: 'git' | 'local' | 'npm';
 	src: string;

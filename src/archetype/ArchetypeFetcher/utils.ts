@@ -1,5 +1,6 @@
 import { stat, pathExists, rm, mkdirp } from 'fs-extra';
 
+// TODO: remove it after refactor install/delete archetypes lifecycle
 export const prepareArchetypeDirectory = async (dirName: string) => {
 	const isDirExist = await pathExists(dirName);
 
