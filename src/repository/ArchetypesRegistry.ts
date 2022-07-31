@@ -6,13 +6,22 @@ import { isResourceExist } from '../utils';
 import * as iots from 'io-ts';
 import { isValidType } from '../validation';
 
-export const ArchetypeEntryType = iots.type({
-	name: iots.string,
-	src: iots.string,
-	type: iots.union([iots.literal('git'), iots.literal('local'), iots.literal('npm')]),
-});
+export const ArchetypeReferenceType = iots.intersection([
+	iots.type({
+		name: iots.string,
+		src: iots.string,
+		type: iots.union([
+			iots.literal('git'),
+			iots.literal('local'),
+			iots.literal('npm'),
+		]),
+	}),
+	iots.partial({
+		path: iots.string,
+	}),
+]);
 
-export const ArchetypeReferenceType = iots.array(ArchetypeEntryType);
+export const ArchetypeReferencesListType = iots.array(ArchetypeReferenceType);
 
 // TODO: implement safe concurrent read/write
 /**
@@ -39,11 +48,11 @@ export class ArchetypesRegistry {
 		const rawString = buffer.toString('utf8');
 		const rawJson = JSON.parse(rawString);
 
-		return isValidType(ArchetypeReferenceType, rawJson) ? rawJson : [];
+		return isValidType(ArchetypeReferencesListType, rawJson) ? rawJson : [];
 	};
 
 	public setArchetypes = async (
-		archetypes: iots.TypeOf<typeof ArchetypeReferenceType>,
+		archetypes: iots.TypeOf<typeof ArchetypeReferencesListType>,
 	) => {
 		await this.sync();
 

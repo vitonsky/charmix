@@ -2,6 +2,7 @@ export type ArchetypeReference = {
 	name: string;
 	type: 'git' | 'local' | 'npm';
 	src: string;
+	path?: string;
 };
 
 export type ArchetypeStaticTemplate = {

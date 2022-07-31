@@ -10,7 +10,7 @@ export const prepareArchetypeAdd: CommandHandlerConstructor<{
 }> =
 	({ registry, archetypesManager }) =>
 		async (args: Record<string, any>) => {
-			const { force = false, type, name, reference } = args;
+			const { force = false, type, name, reference, path: referencePath } = args;
 
 			const archetypes = await registry.getArchetypes();
 
@@ -35,6 +35,7 @@ export const prepareArchetypeAdd: CommandHandlerConstructor<{
 			const temporaryArchetype = await archetypesManager.fetchArchetypeToTempDirectory({
 				type,
 				src: reference,
+				path: referencePath,
 			});
 
 			// validations
@@ -53,6 +54,7 @@ export const prepareArchetypeAdd: CommandHandlerConstructor<{
 				name: archetypeName,
 				type,
 				src: reference,
+				...(referencePath ? { path: referencePath } : {}),
 			};
 
 			console.log('Install archetype...');
@@ -88,6 +90,7 @@ export const buildArchetypeAdd: CommandsBuilder = async ({ cacheDir }) => [
 			});
 			parser.add_argument('--name', '-n');
 			parser.add_argument('reference');
+			parser.add_argument('path', { nargs: '?' });
 
 			const registry = new ArchetypesRegistry();
 			const archetypesManager = new ArchetypeManager({ cacheDir });

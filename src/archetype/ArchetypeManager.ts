@@ -64,22 +64,25 @@ export class ArchetypeManager {
 	 * It's useful to use and validate archetype with no installing
 	 */
 	public fetchArchetypeToTempDirectory = async (
-		archetype: Pick<ArchetypeReference, 'type' | 'src'>,
+		archetype: Pick<ArchetypeReference, 'type' | 'src' | 'path'>,
 	) => {
 		await ensureDir(this.tmpDir);
 		const tmpPath = await mkdtemp(path.join(this.tmpDir, 'archetype-'));
 
 		// Fetch
-		const archetypeTmpPath = await this.fetchArchetype(archetype, tmpPath);
+		const rootArchetypeTmpPath = await this.fetchArchetype(archetype, tmpPath);
+		const resolvedArchetypeTmpPath = archetype.path
+			? path.resolve(rootArchetypeTmpPath, archetype.path)
+			: rootArchetypeTmpPath;
 
 		// Validate structure
-		const manifest = await getArchetypeManifest(archetypeTmpPath);
+		const manifest = await getArchetypeManifest(resolvedArchetypeTmpPath);
 		if (manifest === null) {
 			throw new Error(`Manifest is not found`);
 		}
 
 		return {
-			path: archetypeTmpPath,
+			path: rootArchetypeTmpPath,
 			manifest,
 		};
 	};
@@ -103,7 +106,16 @@ export class ArchetypeManager {
 		}
 
 		// Copy temporary files
-		await move(archetypeTmpPath, archetypePath);
+		const resolvedArchetypeTmpPath = archetype.path
+			? path.resolve(archetypeTmpPath, archetype.path)
+			: archetypeTmpPath;
+		await move(resolvedArchetypeTmpPath, archetypePath);
+
+		// Remove tmp directory for archetypes with specified `path`
+		const isTmpDirectoryExist = await isResourceExist(archetypeTmpPath);
+		if (isTmpDirectoryExist) {
+			await rm(archetypeTmpPath, { force: true, recursive: true });
+		}
 	};
 
 	public delete = async (archetype: ArchetypeReference) => {
