@@ -78,6 +78,9 @@ export class ArchetypeManager {
 		// Validate structure
 		const manifest = await getArchetypeManifest(resolvedArchetypeTmpPath);
 		if (manifest === null) {
+			// Remove tmp directory
+			await rm(rootArchetypeTmpPath, { force: true, recursive: true });
+
 			throw new Error(`Manifest is not found`);
 		}
 
