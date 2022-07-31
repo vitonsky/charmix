@@ -1,6 +1,7 @@
-import { spawn, SpawnOptions } from 'child_process';
 import fs from 'fs/promises';
+import path from 'path';
 import readline from 'readline';
+import { spawn, SpawnOptions } from 'child_process';
 
 /**
  * Error to throw and show message to user
@@ -55,3 +56,16 @@ export const nodePrompt = (text: string) =>
 			res(response);
 		});
 	});
+
+/**
+ * Return sub path and ensure that its path is not out of parent directory, otherwise throw error
+ */
+export const getSubPath = (pathname: string, subPath: string) => {
+	const resolvedPath = path.resolve(pathname, subPath);
+
+	if (!resolvedPath.startsWith(path.resolve(pathname))) {
+		throw new Error(`Path is out of parent directory`);
+	}
+
+	return resolvedPath;
+};

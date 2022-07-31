@@ -7,7 +7,7 @@ import { ArchetypeFetcher } from './ArchetypeFetcher';
 import { FsFetcher } from './ArchetypeFetcher/FsFetcher';
 import { GitFetcher } from './ArchetypeFetcher/GitFetcher';
 import { NpmFetcher } from './ArchetypeFetcher/NpmFetcher';
-import { CriticalError, isResourceExist } from '../utils';
+import { CriticalError, getSubPath, isResourceExist } from '../utils';
 
 type ArchetypeManagerOptions = {
 	cacheDir: string;
@@ -72,7 +72,7 @@ export class ArchetypeManager {
 		// Fetch
 		const rootArchetypeTmpPath = await this.fetchArchetype(archetype, tmpPath);
 		const resolvedArchetypeTmpPath = archetype.path
-			? path.resolve(rootArchetypeTmpPath, archetype.path)
+			? getSubPath(rootArchetypeTmpPath, archetype.path)
 			: rootArchetypeTmpPath;
 
 		// Validate structure
@@ -110,7 +110,7 @@ export class ArchetypeManager {
 
 		// Copy temporary files
 		const resolvedArchetypeTmpPath = archetype.path
-			? path.resolve(archetypeTmpPath, archetype.path)
+			? getSubPath(archetypeTmpPath, archetype.path)
 			: archetypeTmpPath;
 		await move(resolvedArchetypeTmpPath, archetypePath);
 
