@@ -81,16 +81,21 @@ export const buildArchetypeAdd: CommandsBuilder = async ({ cacheDir }) => [
 		handler: ({ parser }) => {
 			parser.add_argument('--type', '-t', {
 				required: true,
-				help: 'archetype type',
+				help: 'reference type',
 				choices: ['git', 'local', 'npm'],
 			});
 			parser.add_argument('--force', '-f', {
 				action: 'store_true',
 				help: 'force add archetype. If archetype with same name already exists, it will be replaced',
 			});
-			parser.add_argument('--name', '-n');
-			parser.add_argument('reference');
-			parser.add_argument('path', { nargs: '?' });
+			parser.add_argument('--name', '-n', {
+				help: 'archetype name to use. If not specified, will use name from archetype manifest',
+			});
+			parser.add_argument('reference', { help: 'reference id or path' });
+			parser.add_argument('path', {
+				nargs: '?',
+				help: 'path to archetype directory if it not in root directory',
+			});
 
 			const registry = new ArchetypesRegistry();
 			const archetypesManager = new ArchetypeManager({ cacheDir });
