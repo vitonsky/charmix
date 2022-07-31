@@ -12,15 +12,32 @@ export type File = {
 	contents: Buffer;
 };
 
-export type ProvidedControls = {
+export type HookControls = {
 	addFile: (file: File) => void;
 };
 
+export type HookOptions = {
+	/**
+	 * Path to archetype directory
+	 */
+	archetypePath: string;
+
+	/**
+	 * Path to target directory to apply hook
+	 */
+	targetPath: string;
+
+	/**
+	 * Options provided by user to configure data
+	 */
+	options: Record<any, any>;
+};
+
+/**
+ * Object that a hook module return
+ */
 export type HookModule = {
-	getFiles: (
-		parameters: Record<any, any>,
-		controls: ProvidedControls,
-	) => Promise<void | File[]>;
+	getFiles: (properties: HookOptions, controls: HookControls) => Promise<void | File[]>;
 };
 
 export class HookArchetype {
@@ -108,7 +125,14 @@ export class HookArchetype {
 
 		let files;
 		try {
-			files = await getFiles(parameters, { addFile });
+			files = await getFiles(
+				{
+					archetypePath: archetypeDir,
+					targetPath: destination,
+					options: parameters,
+				},
+				{ addFile },
+			);
 		} catch (err) {
 			throw new CriticalError('Exception while hook execution', {
 				cause: err as Error,

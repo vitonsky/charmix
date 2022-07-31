@@ -43,12 +43,12 @@ It's very powerful tool to flexible configuration of template files.
 
 Hook function receive 2 parameters:
 
-- options dictionary
+- options
 - object provided hooks
 
 Function may return nothing or array of files.
 
-Function signature
+### Function signature
 
 ```ts
 type File = {
@@ -56,15 +56,38 @@ type File = {
 	contents: Buffer;
 };
 
-type ProvidedControls = {
+export type HookControls = {
 	addFile: (file: File) => void;
 };
 
-type Hook = (
-	parameters: Record<string, string>,
-	controls: ProvidedControls,
-) => Promise<void | File[]>;
+export type HookOptions = {
+	/**
+	 * Path to archetype directory
+	 */
+	archetypePath: string;
+
+	/**
+	 * Path to target directory to apply hook
+	 */
+	targetPath: string;
+
+	/**
+	 * Options provided by user to configure data
+	 */
+	options: Record<any, any>;
+};
+
+/**
+ * Object that a hook module return
+ */
+export type HookModule = {
+	getFiles: (properties: HookOptions, controls: HookControls) => Promise<void | File[]>;
+};
 ```
+
+### How to implement hook
+
+Hook will receive `options` provided by user, hook may use this options to configure project templates.
 
 To add files to the target directory, hook function may return array of files or register files by call `addFile` hook.
 
@@ -72,3 +95,5 @@ File must be object with 2 properties:
 
 - path: `string` with relative path to the file
 - contents: `Buffer` contains content of the file
+
+Hook also may just copy files to a directory from `targetPath`, it's useful feature to easy wrap other CLI application, however you should prefer use declarative way to write files described above when it possible, to user have control over this files with configuration features.
