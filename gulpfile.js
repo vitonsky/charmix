@@ -3,6 +3,8 @@ const ts = require('gulp-typescript');
 const mergeStream = require('merge-stream');
 const clean = require('gulp-clean');
 
+const cleanPackageJson = require('./scripts/gulp/cleanPackageJson');
+
 const buildDir = 'dist';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -23,9 +25,8 @@ function copyMetaFiles() {
 
 	return mergeStream([
 		mergeStream(
-			// TODO: clean package.json
 			// Clean package.json
-			gulp.src(['./package.json']),
+			gulp.src(['./package.json']).pipe(cleanPackageJson()),
 			// Copy other
 			gulp.src(['./README.md', ...(isProduction ? [] : devFiles)], {
 				allowEmpty: true,
