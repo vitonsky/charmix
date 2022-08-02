@@ -12,12 +12,9 @@
     "sourceType": "module"
   },
   "plugins": [
-    "react-hooks",
     "@typescript-eslint"
   ],
-  "extends": [
-    "plugin:react-hooks/recommended"
-  ],
+  "extends": [],
   "rules": {
     "function-call-argument-newline": [
       "error",

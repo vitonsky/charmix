@@ -26,7 +26,6 @@
 		"sourceMap": true,
 		"lib": ["es2020", "dom"],
 		"rootDir": ".",
-		"jsx": "react",
 		"allowJs": true,
 		"resolveJsonModule": true
 	},
