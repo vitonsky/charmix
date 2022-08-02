@@ -37,6 +37,7 @@
 		"jest": "^28.1.0",
 		"lint-staged": "^12.4.1",
 		"merge-stream": "^2.0.0",
+		"minipass": "^3.2.1",
 		"prettier": "^2.6.2",
 		"textlint": "^12.1.1",
 		"textlint-filter-rule-comments": "^1.2.2",
