@@ -1,0 +1,20 @@
+{
+	"name": "ts-frontend",
+	"version": "1.0.0",
+	"type": "hook",
+	"prepareCommand": "npm i",
+	"homepage": "https://github.com/vitonsky/charmix",
+	"description": "Generate file structure for any typescript project",
+	"hook": "./hook.js",
+	"options": [
+		{
+			"name": "name",
+			"description": "Project name"
+		},
+		{
+			"name": "useReact",
+			"defaultValue": false,
+			"description": "Include react and its linters to dependencies"
+		}
+	]
+}
