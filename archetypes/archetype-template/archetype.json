@@ -1,0 +1,20 @@
+{
+	"name": "archetype",
+	"version": "1.0.0",
+	"type": "hook",
+	"prepareCommand": "npm i",
+	"homepage": "https://github.com/vitonsky/charmix",
+	"description": "Generate file structure for charmix archetype",
+	"hook": "./hook.js",
+	"options": [
+		{
+			"name": "name",
+			"required": true,
+			"description": "Archetype name"
+		},
+		{
+			"name": "options",
+			"description": "Archetype options. Separate with comma, like that \"foo,bar,baz\""
+		}
+	]
+}
