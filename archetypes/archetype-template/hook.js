@@ -20,6 +20,8 @@ const prepareFile = (file, options) => {
 		return trimmedOptions ? trimmedOptions.split(',') : [];
 	};
 
+	const archetypeName = options.name ?? 'name';
+
 	switch (true) {
 	case basename === 'archetype.json': {
 		const json = parse(file.contents.toString('utf-8'));
@@ -46,16 +48,20 @@ const prepareFile = (file, options) => {
 		break;
 	}
 	case file.path === 'README.md': {
+		let text = file.contents.toString('utf-8');
+
+		text = text.replace(/\$ARCHETYPE_NAME/g, archetypeName);
+
 		const options = getOptionsArray()
 			.map((optionName) => '- ' + optionName)
 			.join('\n');
-
 		if (options) {
-			let text = file.contents.toString('utf-8');
-
-			text += `\n## Options\n${options}\n`;
-			file.contents = Buffer.from(text);
+			text +=
+					'\n'.repeat(text.slice(-1) === '\n' ? 1 : 2) +
+					`## Options\n${options}\n`;
 		}
+
+		file.contents = Buffer.from(text);
 
 		break;
 	}
