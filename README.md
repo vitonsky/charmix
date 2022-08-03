@@ -72,6 +72,4 @@ You may use archetype template to quick start:
 
 Inspired by [Maven](https://maven.apache.org/archetype/index.html)
 
-<!-- TODO: add links -->
-
 [archetypeslist]: ./docs/Archetypes.md
