@@ -125,6 +125,7 @@ export class HookArchetype {
 
 		let files;
 		try {
+			console.log(`Run archetype hook`);
 			files = await getFiles(
 				{
 					archetypePath: archetypeDir,
