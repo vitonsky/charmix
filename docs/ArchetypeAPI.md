@@ -97,3 +97,8 @@ File must be object with 2 properties:
 - contents: `Buffer` contains content of the file
 
 Hook also may just copy files to a directory from `targetPath`, it's useful feature to easy wrap other CLI application, however you should prefer use declarative way to write files described above when it possible, to user have control over this files with configuration features.
+
+You may use archetype template:
+
+- Install `charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype-template`
+- Create archetype hook template `charmix use archetype name=myArchetypeName`
