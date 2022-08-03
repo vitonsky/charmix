@@ -15,8 +15,10 @@ Instead of create your own CLI tool to generate project template, you may implem
 # How to use?
 
 - install it globally `npm i -g charmix`
-- add any archetype you want like that `charmix add -t git https://github.com/vitonsky/charmix.git archetypes/ts-frontend`
-- generate project structure by execute command in project directory `charmix use ts-frontend`
+- add any archetype you want like that:
+  `charmix add -t git https://github.com/vitonsky/charmix.git archetypes/ts-frontend`
+- generate project structure by execute command in project directory
+  `charmix use ts-frontend`
 
 You may create your own archetype, add it to charmix and use. You may place your archetype on local machine, git repository or npm/npm-like registry.
 
