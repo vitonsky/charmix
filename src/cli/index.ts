@@ -54,7 +54,6 @@ export const app = async (appOptions: AppOptions) => {
 
 	const args = parser.parse_args();
 
-	console.dir(args);
 	try {
 		// Run command handler
 		const { handler, ...otherArgs } = args;

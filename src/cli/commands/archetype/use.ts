@@ -35,8 +35,6 @@ export const prepareArchetypeUse: CommandHandlerConstructor<{
 }> =
 	({ config }) =>
 		async (args: Record<string, any>) => {
-			console.log("It's use command!", args);
-
 			const archetypeManager = new ArchetypeManager({ cacheDir: config.cacheDir });
 
 			const { archetype: archetypeName, params, directory, interactive } = args;
@@ -61,8 +59,6 @@ export const prepareArchetypeUse: CommandHandlerConstructor<{
 			const { type: archetypeType } = archetypeInfo.manifest;
 
 			const destination = path.resolve(process.cwd(), directory ?? '.');
-
-			console.log({ archetypeDir });
 
 			if (archetypeType === ARCHETYPE_TYPE.STATIC_TEMPLATE) {
 				const staticArchetype = new StaticTemplateArchetype();

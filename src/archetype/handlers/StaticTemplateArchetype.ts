@@ -48,8 +48,6 @@ export class StaticTemplateArchetype {
 		// Remove duplicates
 		filesToCopy = filesToCopy.filter((path, idx, arr) => arr.indexOf(path) === idx);
 
-		// console.log({ filesToCopy, destination });
-
 		// Copy files and directories
 		await Promise.all(
 			filesToCopy.map(async (filename) => {
