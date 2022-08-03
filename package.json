@@ -4,6 +4,8 @@
 	"directories": {
 		"bin": "./bin"
 	},
+	"keywords": ["cli", "tool", "archetype", "template", "generator"],
+	"license": "Apache-2.0",
 	"scripts": {
 		"test": "jest",
 		"build:package": "NODE_ENV=production gulp",
