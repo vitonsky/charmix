@@ -72,4 +72,4 @@ Inspired by [Maven](https://maven.apache.org/archetype/index.html)
 
 <!-- TODO: add links -->
 
-[archetypeslist]: #
+[archetypeslist]: ./docs/Archetypes.md
