@@ -1,8 +1,14 @@
 Archetype it is directory contains file `archetype.json` with declarative description of archetype.
 
-# Structure of `archetype.json`
+# Archetype manifest
 
-- type: define type of archetype and additional properties
+Archetype manifest is a file `archetype.json` contains information about archetype.
+
+- **type**: define type of archetype and additional properties. This property is required for any archetype
+- name: name that will used to apply archetype
+- version: archetype version
+- homepage: url to archetype repository or docs
+- description: description about archetype that may contains instructions
 
 # Types of archetype
 
@@ -37,13 +43,31 @@ It's very powerful tool to flexible configuration of template files.
 	// to install dependencies or compile TS files to JS files
 	"prepareCommand": "npm i",
 	// javascript module that export hook
-	"hook": "./hook.js"
+	"hook": "./hook.js",
+	// variables to configure files
+	"options": [
+		{
+			// option name
+			"name": "name",
+			// charmix ensure that required options will be specified by user
+			"required": true,
+			// description about property purpose
+			"description": "Project name"
+		},
+		{
+			"name": "useReact",
+			// default value will provided if user will not specify option
+			// when specified both `defaultValue` and `required`, user may leave default value
+			"defaultValue": false,
+			"description": "Include react and its linters to dependencies"
+		}
+	]
 }
 ```
 
 Hook function receive 2 parameters:
 
-- options
+- properties
 - object provided hooks
 
 Function may return nothing or array of files.
@@ -98,7 +122,7 @@ File must be object with 2 properties:
 
 Hook also may just copy files to a directory from `targetPath`, it's useful feature to easy wrap other CLI application, however you should prefer use declarative way to write files described above when it possible, to user have control over this files with configuration features.
 
-You may use archetype template:
+You may create archetype from template:
 
 - Install `charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype-template`
 - Create archetype hook template `charmix use archetype name=myArchetypeName`
