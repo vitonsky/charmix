@@ -23,18 +23,12 @@ function buildCjs() {
 }
 
 function copyMetaFiles() {
-	const devFiles = ['./archetypes.json'];
-
 	return mergeStream([
 		mergeStream(
 			// Clean package.json
 			gulp.src(['./package.json']).pipe(cleanPackageJson()),
 			// Replace relative links to github links
 			gulp.src(['./README.md']).pipe(replace(/\.\//g, gitPublicMainPath + '/')),
-			// Copy additional files
-			gulp.src(isProduction ? [] : devFiles, {
-				allowEmpty: true,
-			}),
 		).pipe(gulp.dest(buildDir)),
 		gulp.src(['./bin/**']).pipe(gulp.dest(buildDir + '/bin')),
 	]);
