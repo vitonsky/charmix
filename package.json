@@ -1,7 +1,6 @@
 {
 	"name": "charmix",
 	"version": "0.1.0",
-	"preferGlobal": "true",
 	"directories": {
 		"bin": "./bin"
 	},
