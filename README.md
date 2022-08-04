@@ -22,17 +22,19 @@ Read more in [ArchetypeAPI docs](./docs/ArchetypeAPI.md)
 
 ```sh
 # install it globally
-$ npm install -g charmix
+npm install -g charmix
 
 # or yarn
-$ yarn global add charmix
+yarn global add charmix
 ```
 
 ## Add your favorite archetypes
 
 Charmix is only platform to manage boilerplates, but it's not contains any archetypes by default. It's like [APT](<https://en.wikipedia.org/wiki/APT_(software)>) for linux packages.
 
-Thus, you have to find archetypes on the internet or write your own and add it to charmix registry to use. You may look at [archetypes list][archetypeslist] or try to find on [github](https://github.com/topics/charmixarchetype) or [npm](https://www.npmjs.com/search?q=%23charmixarchetype) by keyword `charmixArchetype`.
+Thus, you have to find archetypes on the internet or create yours and add it to charmix registry to use.
+
+You can look at [archetypes list][archetypeslist] or try to find on [github](https://github.com/topics/charmixarchetype) or [npm](https://www.npmjs.com/search?q=%23charmixarchetype) by keyword `charmixArchetype`.
 
 ```sh
 # Add archetype from git service
@@ -63,7 +65,8 @@ charmix use -d ./projectDir -i ts-frontend
 ```
 
 Explore commands by run any command with argument `--help` or `-h`.
-For example `charmix -h`, `charmix use -h`.
+
+Try it `charmix -h`, `charmix use -h`.
 
 # How to create a new archetype?
 
