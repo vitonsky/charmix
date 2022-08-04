@@ -124,5 +124,5 @@ Hook also may just copy files to a directory from `targetPath`, it's useful feat
 
 You may create archetype from template:
 
-- Install `charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype-template`
+- Install `charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype`
 - Create archetype hook template `charmix use archetype name=myArchetypeName`

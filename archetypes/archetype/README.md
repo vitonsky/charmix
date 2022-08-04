@@ -7,7 +7,7 @@ Archetype for [charmix](https://www.npmjs.com/package/charmix) to generate arche
 npm i -g charmix
 
 # Add archetype
-charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype-template
+charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype
 
 # Use
 charmix use -d ./projectDirectory archetype

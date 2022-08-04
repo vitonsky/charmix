@@ -10,5 +10,5 @@ You may trust only the code that write yourself. Otherwise you just believe to a
 
 # Archetypes list
 
-- [archetype](https://github.com/vitonsky/charmix/tree/master/archetypes/archetype-template): template of archetype
+- [archetype](https://github.com/vitonsky/charmix/tree/master/archetypes/archetype): template of archetype
 - [ts-frontend](https://github.com/vitonsky/charmix/tree/master/archetypes/ts-frontend): template of TypeScript frontend project with configured linters

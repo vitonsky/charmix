@@ -12,11 +12,11 @@ When you create archetype for charmix, instead of boilerplate from scratch, you 
 
 First of all, read the [ArchetypeAPI docs](./docs/ArchetypeAPI.md).
 
-You may use [archetype template](../archetypes/archetype-template/) to quick start:
+You may use [archetype template](../archetypes/archetype/) to quick start:
 
 ```sh
 # Install template
-charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype-template
+charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype
 
 # Create project directory
 charmix use -d ./myArchetype archetype name=myArchetypeName
