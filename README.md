@@ -24,7 +24,7 @@ You may create your own archetype, add it to charmix and use. You may place your
 
 To use archetype, you have install it firstly, to do it you have to use command `add` and specify reference to archetype and type of reference
 
-```
+```sh
 # install archetype from git repository (local repositories supports too)
 charmix add -t git https://example.com/archetypeRepositoryName
 
@@ -37,7 +37,7 @@ charmix add -n anotherArchetypeName -t local /home/username/archetypeDirectory
 
 And then use command `use` to apply archetype to directory
 
-```
+```sh
 charmix use archetypeName
 
 # or the same, but to different directory
