@@ -1,72 +1,75 @@
-Charmix is a tool to generate project files structure from archetypes (file structure template created by users).
+Charmix it's a tool to generate projects from custom templates (archetypes).
 
-It's try to solve of the problem when you copy files from the one project to another over and over.
+It's try to solve a problem when you copy files from one project to another over and over. And then, you sync changes in every single file between projects.
 
-Now you can make archetype from this files once and apply this template and configure variables (like project name or framework linters set) any times by one command.
-
-Like that `charmix use ts-frontend name=projectX useReact=true`.
+Now you can make project template once and apply it for every new project.
 
 # Why Charmix?
 
-Instead of use few CLI tools to generate project templates (like `create-react-app`) and remember how it to use, you may use one simple and powerful tool.
+**If you tried to use boilerplate generators** like `create-react-app` and similar, you may ask yourself "why i should use charmix instead"?
 
-Instead of create your own CLI tool to generate project template, you may implement ONE javascript function which receive options and return configured files. Delegate another work like CLI interface implementation, resolving paths, distribution, etc to charmix.
+Answer is - for your productivity. Instead of use few CLI tools and remember how to use its and read the docs for each, you may use one tool that have one powerful interface for ALL archetypes.
+
+**If you created a boilerplate generators**, you may ask yourself "why i should to create charmix archetype, instead of standalone boilerplate?"
+
+Answer is - easy maintenance and whole powerful of platform. All you need is create JSON file on 4 lines contains glob pattern to files for static archetype or javascript function that receive options and return configured files as buffers or strings for dynamic archetypes.
+
+Read more in [ArchetypeAPI docs](./docs/ArchetypeAPI.md)
 
 # How to use?
 
-- install it globally `npm i -g charmix`
-- add any archetype you want like that:
-  `charmix add -t git https://github.com/vitonsky/charmix.git archetypes/ts-frontend`
-- generate project structure by execute command in project directory
-  `charmix use ts-frontend`
-
-You may create your own archetype, add it to charmix and use. You may place your archetype on local machine, git repository or npm/npm-like registry.
-
-To use archetype, you have install it firstly, to do it you have to use command `add` and specify reference to archetype and type of reference
+## Installation
 
 ```sh
-# install archetype from git repository (local repositories supports too)
-charmix add -t git https://example.com/archetypeRepositoryName
+# install it globally
+$ npm install -g charmix
 
-# install archetype from local machine
+# or yarn
+$ yarn global add charmix
+```
+
+## Add your favorite archetypes
+
+Charmix is only platform to manage boilerplates, but it's not contains any archetypes by default. It's like [APT](<https://en.wikipedia.org/wiki/APT_(software)>) for linux packages.
+
+Thus, you have to find archetypes on the internet or write your own and add it to charmix registry to use. You may look at [archetypes list][archetypeslist] or try to find on [github](https://github.com/topics/charmixarchetype) or [npm](https://www.npmjs.com/search?q=%23charmixarchetype) by keyword `charmixArchetype`.
+
+```sh
+# Add archetype from git service
+charmix add -t git https://github.com/vitonsky/charmix.git archetypes/ts-frontend
+
+# Or from local machine
+charmix add -t local /home/username/archetypeDirectory
+```
+
+## Use archetype
+
+```sh
+# You may list available archetypes
+charmix list
+
+# Let's use archetype ts-frontend
 charmix add -t local /home/username/archetypeDirectory
 
-# or the same, but set name manually, instead of name from archetype manifest
-charmix add -n anotherArchetypeName -t local /home/username/archetypeDirectory
+# To write files to current directory
+charmix use ts-frontend
+# To write files to directory projectDir
+charmix use -d ./projectDir ts-frontend
+
+# Specify parameters manually
+charmix use -d ./projectDir ts-frontend name=projectName useReact=true
+# Or specify parameters in interactive mode
+charmix use -d ./projectDir -i ts-frontend
 ```
 
-And then use command `use` to apply archetype to directory
-
-```sh
-charmix use archetypeName
-
-# or the same, but to different directory
-charmix use -d ./subDirectory/foo anotherArchetypeName
-
-# you may specify parameters to configure archetype
-charmix use archetypeName parameter1=value1 foo=42 projectName='some name with spaces'
-```
-
-Also you may use commands to list archetypes, delete and update.
-
-Explore commands by run any command with argument `--help` or `-h`, for example `charmix -h`, `charmix use -h`.
-
-# Archetypes
-
-Visit the [archetypes list page][archetypeslist], to find template for your purpose.
-
-If you can't found archetype that you need, create it yourself (and publish to the world if you wish).
+Explore commands by run any command with argument `--help` or `-h`.
+For example `charmix -h`, `charmix use -h`.
 
 # How to create a new archetype?
 
-If you want to create archetype, read [the docs](./docs/ArchetypeAPI.md) about it.
+If you want to create archetype, read the [ArchetypeAPI docs](./docs/ArchetypeAPI.md) and [suggests to create archetype](./docs/CreateArchetype.md).
 
-If you create archetype and want to make it public, publish your archetype to any git hosting or npm registry and [create issue](https://github.com/vitonsky/charmix/issues/new) with link to your archetype to add it to [archetypes list][archetypeslist].
-
-You may use archetype template to quick start:
-
-- Install template `charmix add -t git https://github.com/vitonsky/charmix.git archetypes/archetype-template`
-- Create archetype hook template `charmix use archetype name=myArchetypeName`
+If you create archetype and want to make it public, publish your archetype to any git hosting or npm registry with keyword `charmixArchetype` and [create issue](https://github.com/vitonsky/charmix/issues/new) with url to your archetype to add it to [archetypes list][archetypeslist].
 
 ---
 
