@@ -4,7 +4,7 @@ const mergeStream = require('merge-stream');
 const clean = require('gulp-clean');
 const replace = require('gulp-replace');
 
-const cleanPackageJson = require('./scripts/gulp/cleanPackageJson');
+const cleanPackage = require('gulp-clean-package');
 
 const buildDir = 'dist';
 const gitPublicMainPath = 'https://github.com/vitonsky/charmix/tree/master';
@@ -26,7 +26,7 @@ function copyMetaFiles() {
 	return mergeStream([
 		mergeStream(
 			// Clean package.json
-			gulp.src(['./package.json']).pipe(cleanPackageJson()),
+			gulp.src(['./package.json']).pipe(cleanPackage()),
 			// Replace relative links to github links
 			gulp.src(['./README.md']).pipe(replace(/\.\/docs/g, gitPublicMainPath + '/')),
 		).pipe(gulp.dest(buildDir)),
