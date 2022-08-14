@@ -5,9 +5,15 @@ export type ArchetypeReference = {
 	path?: string;
 };
 
+export type FilesPattern = string | string[];
 export type ArchetypeStaticTemplate = {
 	type: 'staticTemplate';
-	files: string | string[];
+	files:
+		| FilesPattern
+		| {
+				include: FilesPattern;
+				exclude?: FilesPattern;
+		  };
 };
 
 export type ArchetypeManifestOption = {

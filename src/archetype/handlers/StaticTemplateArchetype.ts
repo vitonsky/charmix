@@ -5,6 +5,10 @@ import glob from 'glob-promise';
 
 import { isResourceExist } from '../../utils';
 import { getArchetypeManifest } from '../utils';
+import { FilesPattern } from '..';
+
+const getArrayOfFilesPattern = (pattern: FilesPattern) =>
+	Array.isArray(pattern) ? pattern : [pattern];
 
 export class StaticTemplateArchetype {
 	public apply = async (archetypeDir: string, destination: string) => {
@@ -17,14 +21,21 @@ export class StaticTemplateArchetype {
 			throw new Error('Invalid type of archetype');
 		}
 
-		let filesToCopy: string[] = [];
+		// Get paths
+		let globPathsToInclude: string[] = [];
+		let globPathsToExclude: string[] = [];
+		if (Array.isArray(manifest.files) || typeof manifest.files === 'string') {
+			globPathsToInclude = getArrayOfFilesPattern(manifest.files);
+		} else {
+			globPathsToInclude = getArrayOfFilesPattern(manifest.files.include);
+			globPathsToExclude = getArrayOfFilesPattern(manifest.files.exclude ?? []);
+		}
 
 		// Find files from manifest
-		const globPaths = Array.isArray(manifest.files)
-			? manifest.files
-			: [manifest.files];
-		for (const resource of globPaths) {
+		let filesToCopy: string[] = [];
+		for (const resource of globPathsToInclude) {
 			const foundResources = await glob(resource, {
+				ignore: globPathsToExclude,
 				dot: true,
 				cwd: archetypeDir,
 				root: archetypeDir,
