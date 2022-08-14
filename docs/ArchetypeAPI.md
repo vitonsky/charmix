@@ -22,8 +22,11 @@ Static archetype is most simple project template, it's just specify files and di
 {
 	"type": "staticTemplate",
 	// glob paths to files and directories that will copy to the target directory
-	// it may be string or array of strings
-	"files": "files/*"
+	// it may be string or array of strings or object with properties `include` and `exclude` contains string or array of strings
+	"files": {
+		"include": ["files/*"],
+		"exclude": ["files/foo"]
+	}
 }
 ```
 
