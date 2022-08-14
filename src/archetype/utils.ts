@@ -6,9 +6,16 @@ import * as iots from 'io-ts';
 import { ArchetypeManifest } from '.';
 import { isValidType } from '../validation';
 
+export const FilesPatternType = iots.union([iots.string, iots.array(iots.string)]);
 export const ArchetypeStaticTemplateType = iots.type({
 	type: iots.literal('staticTemplate'),
-	files: iots.union([iots.string, iots.array(iots.string)]),
+	files: iots.union([
+		FilesPatternType,
+		iots.intersection([
+			iots.type({ include: FilesPatternType }),
+			iots.partial({ exclude: FilesPatternType }),
+		]),
+	]),
 });
 
 const OptionNameType = new iots.Type<string, string, unknown>(
