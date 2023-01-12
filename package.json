@@ -4,6 +4,9 @@
 	"directories": {
 		"bin": "./bin"
 	},
+	"bin": {
+		"charmix": "./bin/charmix"
+	},
 	"keywords": ["cli", "tool", "archetype", "template", "generator"],
 	"license": "Apache-2.0",
 	"scripts": {

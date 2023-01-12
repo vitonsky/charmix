@@ -26,7 +26,11 @@ function copyMetaFiles() {
 	return mergeStream([
 		mergeStream(
 			// Clean package.json
-			gulp.src(['./package.json']).pipe(cleanPackage()),
+			gulp.src(['./package.json']).pipe(
+				cleanPackage({
+					publicProperties: ['directories', 'bin'],
+				}),
+			),
 			// Replace relative links to github links
 			gulp
 				.src(['./README.md'])
