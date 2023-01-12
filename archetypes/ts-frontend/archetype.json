@@ -1,6 +1,6 @@
 {
 	"name": "ts-frontend",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"type": "hook",
 	"prepareCommand": "npm i",
 	"homepage": "https://github.com/vitonsky/charmix",

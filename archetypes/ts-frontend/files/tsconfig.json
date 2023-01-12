@@ -27,7 +27,8 @@
 		"lib": ["es2020", "dom"],
 		"rootDir": ".",
 		"allowJs": true,
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"skipLibCheck": true
 	},
 	"include": ["src/*.ts", "src/*.tsx", "src/**/*.ts", "src/**/*.tsx"]
 }
