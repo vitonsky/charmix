@@ -38,7 +38,7 @@ You can look at [archetypes list][archetypeslist] or try to find on [github](htt
 
 ```sh
 # Add archetype from git service
-charmix add -t git https://github.com/vitonsky/charmix.git archetypes/ts-frontend
+charmix add -t git https://github.com/vitonsky/charmix.git archetypes/typescript
 
 # Or from local machine
 charmix add -t local /home/username/archetypeDirectory
@@ -50,18 +50,18 @@ charmix add -t local /home/username/archetypeDirectory
 # You may list available archetypes
 charmix list
 
-# Let's use archetype ts-frontend
+# Let's use archetype typescript
 charmix add -t local /home/username/archetypeDirectory
 
 # To write files to current directory
-charmix use ts-frontend
+charmix use typescript
 # To write files to directory projectDir
-charmix use -d ./projectDir ts-frontend
+charmix use -d ./projectDir typescript
 
 # Specify parameters manually
-charmix use -d ./projectDir ts-frontend name=projectName useReact=true
+charmix use -d ./projectDir typescript name=projectName useReact=true
 # Or specify parameters in interactive mode
-charmix use -d ./projectDir -i ts-frontend
+charmix use -d ./projectDir -i typescript
 ```
 
 Explore commands by run any command with argument `--help` or `-h`.
