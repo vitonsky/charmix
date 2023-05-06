@@ -33,7 +33,7 @@
 		"@types/tar": "^6.1.1",
 		"@typescript-eslint/eslint-plugin": "^5.25.0",
 		"@typescript-eslint/parser": "^5.25.0",
-		"eslint": "^8.16.0",
+		"eslint": "^8.40.0",
 		"gulp": "^4.0.2",
 		"gulp-clean": "^0.4.0",
 		"gulp-clean-package": "^0.0.1",
