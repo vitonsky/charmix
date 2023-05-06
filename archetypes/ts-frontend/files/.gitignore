@@ -23,7 +23,8 @@ debug.log
 *.pem
 
 # local env files
-.env*.local
+.env
+*.local
 
 # artifacts
 out
