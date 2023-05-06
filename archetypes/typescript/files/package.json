@@ -5,11 +5,9 @@
 		"test": "jest",
 		"test-fast": "TEST_FAST=true jest",
 		"prettify": "prettier --write \"{*,**/*}.{ts,tsx,js,jsx}\" && eslint --fix \"{*,**/*}.{ts,tsx,js,jsx}\" && stylelint --fix \"{*,**/*}.css\"",
-		"lint:text": "npx textlint \"{*,**/*}.md\"",
-		"browserslist:update": "npx browserslist@latest --update-db",
-		"packages:upgrade": "npx npm-check-updates -u",
-		"configure": "husky install && npm run browserslist:update",
-		"prepare": "npm run configure"
+		"lint:text": "textlint \"{*,**/*}.md\"",
+		"packages:upgrade": "npm-check-updates -u",
+		"prepare": "husky install"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^17.0.0",
