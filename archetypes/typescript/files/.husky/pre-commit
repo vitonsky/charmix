@@ -1,4 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npx lint-staged
+# Specify config explicitly, to not use config from nested directories
+npx lint-staged --config .lintstagedrc
