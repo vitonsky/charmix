@@ -1,6 +1,5 @@
 # packages
 node_modules
-package-lock.json
 .npmrc
 
 # debug
@@ -23,7 +22,8 @@ debug.log
 *.pem
 
 # local env files
-.env*.local
+.env
+*.local
 
 # artifacts
 out
