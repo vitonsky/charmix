@@ -1,5 +1,5 @@
 {
-	"name": "ts-frontend",
+	"name": "typescript",
 	"version": "1.0.1",
 	"type": "hook",
 	"prepareCommand": "npm i",

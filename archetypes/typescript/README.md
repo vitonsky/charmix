@@ -1,4 +1,4 @@
-Archetype to generate file structure for any frontend typescript project
+Archetype to generate file structure for any typescript project
 
 ## How to use
 
@@ -7,10 +7,10 @@ Archetype to generate file structure for any frontend typescript project
 npm i -g charmix
 
 # Add archetype
-charmix add -t git https://github.com/vitonsky/charmix.git archetypes/ts-frontend
+charmix add -t git https://github.com/vitonsky/charmix.git archetypes/typescript
 
 # Use
-charmix use -d ./projectDirectory ts-frontend
+charmix use -d ./projectDirectory typescript
 ```
 
 ## Options
