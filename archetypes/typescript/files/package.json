@@ -4,8 +4,7 @@
 	"scripts": {
 		"test": "jest",
 		"test-fast": "TEST_FAST=true jest",
-		"prettify": "prettier --write \"{*,**/*}.{ts,tsx,js,jsx}\" && eslint --fix \"{*,**/*}.{ts,tsx,js,jsx}\" && stylelint --fix \"{*,**/*}.css\"",
-		"lint:text": "textlint \"{*,**/*}.md\"",
+		"prettify": "prettier --write \"{*,**/*}.{ts,tsx,js,jsx}\" && eslint --fix \"{*,**/*}.{ts,tsx,js,jsx}\"",
 		"packages:upgrade": "npm-check-updates -u",
 		"prepare": "husky install"
 	},
@@ -24,13 +23,6 @@
 		"lint-staged": "^12.4.1",
 		"npm-check-updates": "^16.10.9",
 		"prettier": "^2.6.2",
-		"stylelint": "^14.8.3",
-		"stylelint-config-standard": "^25.0.0",
-		"stylelint-no-unsupported-browser-features": "^5.0.3",
-		"textlint": "^12.1.1",
-		"textlint-filter-rule-comments": "^1.2.2",
-		"textlint-rule-common-misspellings": "^1.0.1",
-		"textlint-rule-write-good": "^2.0.0",
 		"ts-jest": "^28.0.2",
 		"typescript": "^4.6.4"
 	}
